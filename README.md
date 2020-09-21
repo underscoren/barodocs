@@ -8,7 +8,7 @@ Currently in very early stages of development, the majority of features are miss
 
 ## Setup
 
-In order to run the generator for yourself, you will need node.js, npm and a retail copy of Barotrauma (github repo has no content).
+In order to run the generator for yourself, you will need node.js, npm and a retail copy of Barotrauma (public github repo has no content).
 
  1. Clone the github repo and run `npm install` to install all the packages.
  2. Open up "scraper.js" and change the `barotraumaPath` variable to point to where you have the retail version of Barotrauma installed.
@@ -17,11 +17,15 @@ In order to run the generator for yourself, you will need node.js, npm and a ret
  5. Run `node server.js`
  6. Open up a web browser and nagivate to [localhost:8000](http://localhost:8000)
 
+Note: `Content/Items/Fabricators/fabricators.xml` has a typo on line 50 that prevents the xml parser from reading to the end of the file. It will probably be fixed in the next update, but for the meantime, remove it manually before running the scraper.
+
 ## TODO
 
  - Create ContentParsers for all the other content types (currently only Items are parsed)
  - Parse the rest of the tags found in Item ContentParser
  - Allow the user to specify `barotraumaPath`, `contentPackPath` and `languagePath` using command line arguments (yargs library?)
- - Add individual pages to web app
- - Add hover elements to web app
+ - Improve individual pages to web app
+ - Improve hover elements to web app
  - Bundle all the javascript into one file (webpack? browserify?)
+ - Use react instead of creating all html elements with jquery
+ - Alternatively, pre-generate html elements inside items.json
