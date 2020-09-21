@@ -368,7 +368,7 @@ $(document).on("mousemove", event => {
     });
 });
 
-$.getJSON("content/items.json", json => {
+$.getJSON("Content/items.json", json => {
     console.log("Loaded JSON");
     window.items = json;
 
