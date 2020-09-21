@@ -24,8 +24,8 @@ Note: `Content/Items/Fabricators/fabricators.xml` has a typo on line 50 that pre
  - Create ContentParsers for all the other content types (currently only Items are parsed)
  - Parse the rest of the tags found in Item ContentParser
  - Allow the user to specify `barotraumaPath`, `contentPackPath` and `languagePath` using command line arguments (yargs library?)
- - Improve individual pages to web app
- - Improve hover elements to web app
+ - Improve individual pages in web app
+ - Improve hover elements in web app
  - Bundle all the javascript into one file (webpack? browserify?)
  - Use react instead of creating all html elements with jquery
  - Alternatively, pre-generate html elements inside items.json
