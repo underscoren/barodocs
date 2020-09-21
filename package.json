@@ -1,0 +1,22 @@
+{
+  "name": "barodocs",
+  "version": "0.1.0",
+  "description": "Barotrauma documentation generator based on Content Package scraping",
+  "main": "scraper.js",
+  "scripts": {
+    "build": "node scraper.js",
+    "start": "node server.js"
+  },
+  "keywords": [
+    "barotrauma",
+    "documentation",
+    "scraper"
+  ],
+  "author": "_n#1111",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "image-size": "^0.9.1",
+    "xml-parser": "^1.2.1"
+  }
+}
