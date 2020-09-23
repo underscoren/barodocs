@@ -173,10 +173,19 @@ function parseItemFile(baroPath, filePath, languageXML) {
                 reject(err);
                 return;
             }
+            data = data.toString();
             
             console.log("Parsing",filePath);
+            const itemMatches = data.match(/<item [^\/]*>/gi);
+            if(itemMatches) {
+                console.log("Found",itemMatches.length,"item tags via regex");
+            } else {
+                console.log("Found no item tags via regex");
+            }
+
+            if(filePath == "Content/Items/Containers/containers.xml") debugger;
     
-            const xmlObject = parser(data.toString());
+            const xmlObject = parser(data);
             if(xmlObject.root.name.toLowerCase() == "items") {
                 let items = [];
                 for (const item of xmlObject.root.children) {
