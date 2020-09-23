@@ -17,7 +17,10 @@ In order to run the generator for yourself, you will need node.js, npm and a ret
  5. Run `node server.js`
  6. Open up a web browser and nagivate to [localhost:8000](http://localhost:8000)
 
-Note: `Content/Items/Fabricators/fabricators.xml` has a typo on line 50 that prevents the xml parser from reading to the end of the file. It will probably be fixed in the next update, but for the meantime, remove it manually before running the scraper.
+Note: Some of the xml files have syntax errors. The game's xml parser doesn't seem to mind but `xml-parser` doesn't seem to like them. You'll have to fix them manually. Make sure to validate your game files on steam after you're done or you won't be able to join any servers!
+
+ - Content/Items/Fabricators/fabricators.xml:54 remove the second `>`
+ - Content/Items/Containers/containers.xml:44 remove the `a` at the end
 
 ## TODO
 
@@ -26,6 +29,7 @@ Note: `Content/Items/Fabricators/fabricators.xml` has a typo on line 50 that pre
  - Allow the user to specify `barotraumaPath`, `contentPackPath` and `languagePath` using command line arguments (yargs library?)
  - Improve individual pages in web app
  - Improve hover elements in web app
+ - Improve mobile browsing experience
  - Bundle all the javascript into one file (webpack? browserify?)
  - Use react instead of creating all html elements with jquery
  - Alternatively, pre-generate html elements inside items.json
