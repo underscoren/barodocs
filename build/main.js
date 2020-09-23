@@ -74,14 +74,22 @@ function getHoverElementContents(item) {
 function getPageContents(item) {
     console.log(item);
 
+    $("#sidebar, .overlay").removeClass("active");
+
+    const sidebarButton = $("<button role='button' class='btn btn-secondary position-absolute p-2' style='top: 1rem; left: 1rem;'>").append(">");
+    $(sidebarButton).on("click", () => {
+        $("#sidebar, .overlay").addClass("active");
+    })
+
     // TODO? maybe using react would be a better idea...
-    let elements = [
-        $("<div style='margin-left: 22rem' class='row w-75'>").append(
-            $("<div class='w-75'>").append(
+    const elements = [
+        $("<div class='mt-5'>").append(
+            sidebarButton,
+            $("<div class='col-lg-8 col-sm-12 d-inline-block'>").append(
                 $("<div class='col mt-1'>").append(
                     $("<p class='display-4'>").append(item.name),
                     $("<span class='text-muted mr-1'>").append("Identifier:"),
-                    $("<span class='text-secondary '>").append(item.identifier)
+                    $("<span class='text-secondary'>").append(item.identifier)
                 ),
                 $("<div class='col'>").append(
                     item.category ? [
@@ -96,23 +104,23 @@ function getPageContents(item) {
                     $("<span class='text-success'>").append(item.sourceFile)
                 ),
             ),
-            $("<div class='w-25'>").append(
-                $("<div class='col'>").append(
+            $("<div class='col-lg-4 col-sm-12 d-inline-block'>").append(
+                $("<div class='col mt-sm-3 mt-xl-0'>").append(
                     item.sprite ? getImageElement(item, 8, "sprite") : [],
                     item.inventoryIcon ? getImageElement(item, 8, "inventoryIcon") : [],
                 ),
             ),
             $("<p class='lead col-12 mt-4'>").append(item.description),
-            $("<hr class='border-primary w-100'>")
+            $("<hr class='border-primary' style='width: calc(100% - 2rem);'>")
         ),
     ];
 
-    const cardDeck = $("<div class='row col-12'>");
+    const cardDeck = $("<div id='card-deck' class='row col-12 row-cols-xl-3 row-cols-lg-2 row-cols-1'>");
     elements[0].append(cardDeck);
 
     if(item.price) {
         cardDeck.append(
-            $("<div class='col-xl-4 col-sm-12 mb-3'>").append(
+            $("<div class='col mb-3'>").append(
                 $("<div class='card'>").append(
                     $("<div class='card-body'>").append(
                         $("<h5 class='card-title'>").append("Price"),
@@ -121,7 +129,7 @@ function getPageContents(item) {
                             $("<span>").append(item.price.baseprice),
                         ),
                         $("<table class='table table-bordered'>").append(
-                            $("<thead><tr><th scope='col'>City</th><th scope='col'>Military</th><th scope='col'>Mine</th><th scope='col'>Output</th><th scope='col'>Research</th></tr></thead>"),
+                            $("<thead><tr><th scope='col'>CIT</th><th scope='col'>MIL</th><th scope='col'>MIN</th><th scope='col'>OUT</th><th scope='col'>RES</th></tr></thead>"),
                             $("<tbody>").append(
                                 $("<tr>").append(
                                     $("<td>").append((item.price.city.multiplier * item.price.baseprice) >> 0),
@@ -147,7 +155,7 @@ function getPageContents(item) {
 
     if(item.deconstruct) {
         cardDeck.append(
-            $("<div class='col-xl-4 col-sm-12 mb-3'>").append(
+            $("<div class='col mb-3'>").append(
                 $("<div class='card'>").append(
                     $("<div class='card-body'>").append(
                         $("<h5 class='card-title'>").append("Deconstruct"),
@@ -181,7 +189,7 @@ function getPageContents(item) {
         }
 
         cardDeck.append(
-            $("<div class='col-xl-4 col-sm-12 mb-3'>").append(
+            $("<div class='col mb-3'>").append(
                 $("<div class='card'>").append(
                     $("<div class='card-body'>").append(
                         $("<h5 class='card-title'>").append("Fabricate"),
@@ -235,7 +243,7 @@ function getPageContents(item) {
 
     if(usedByItemList.length) {
         cardDeck.append(
-            $("<div class='col-xl-4 col-sm-12 mb-3'>").append(
+            $("<div class='col mb-3'>").append(
                 $("<div class='card'>").append(
                     $("<div class='card-body'>").append(
                         $("<h5 class='card-title'>").append("Used by"),
@@ -257,7 +265,7 @@ function getPageContents(item) {
 
     if(madeByItemList.length) {
         cardDeck.append(
-            $("<div class='col-xl-4 col-sm-12 mb-3'>").append(
+            $("<div class='col mb-3'>").append(
                 $("<div class='card'>").append(
                     $("<div class='card-body'>").append(
                         $("<h5 class='card-title'>").append("Made by"),
@@ -357,8 +365,9 @@ function complexSearch(searchString) {
     return window.nameSearch.search(searchString);
 }
 
-$("#hover").hide();
-$("#sidebar").hide();
+$("#sidebar-dismiss, .overlay").on("click", () => {
+    $("#sidebar, .overlay").removeClass("active");
+});
 
 $(document).on("mousemove", event => {
     const hover = $("#hover");

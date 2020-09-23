@@ -6,13 +6,39 @@
     <title>BaroDocs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.5.2/slate/bootstrap.min.css" integrity="sha512-YjfrOR3ZCJt6xtVn6J6O/CkcCkR1pSZgva/yScp7pq9cc25tWZRtVdKHMoz1T5au89zWfRO+lwMBk+n+bCzsjQ==" crossorigin="anonymous" />
     <style>
+        @media (min-width: 768px) { 
+            #search div {
+                width: 50%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            #card-deck {
+                margin-left: 0;
+                padding-left: 0;
+                padding-right: 0;
+            }
+        }
+
+
         #sidebar {
             height: 100vh;
             width: 20rem;
+            margin-left: -20rem;
             position: absolute;
             top: 0;
             left: 0;
-            overflow-y: scroll;
+            overflow-y: auto;
+            z-index: 9999;
+            transition: margin 0.5s ease-in-out;
+        }
+
+        #sidebar.active {
+            margin-left: 0;
+        }
+
+        #sidebar-dismiss {
+            margin-left: 18rem;
         }
 
         #search-results {
@@ -51,11 +77,29 @@
             border: 1px dashed #3e3f40;
             border-radius: 0.5rem;
         }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 9998;
+            opacity: 0;
+            transition: all 0.5s ease-in-out;
+            top: 0;
+        }
+
+        .overlay.active {
+            display: block;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
     <nav id="sidebar" class="bg-primary border-right" >
-        <div class="d-flex border-bottom">
+        <button id="sidebar-dismiss" type="button" class="close position-fixed text-danger"><span>&times;</span></button>
+        <div class="d-flex border-bottom mt-4">
             <input placeholder="Search" type="text" class="m-2 p-1 d-flex flex-fill" id="sidebar-searchbar">
         </div>
         <ul id="sidebar-results" class="w-100 list-unstyled" style="overflow-y: hidden;"></ul>
@@ -63,15 +107,17 @@
     
     <div id="page"></div>
     
-    <div id="search" class="container-xl">
-        <div class="col w-50 mx-auto" style="margin-top: 25vh">
+    <div id="search" class="container-md">
+        <div class="col mx-auto" style="margin-top: 25vh">
             <img class="w-75 d-block mx-auto" src="barodocs.png" alt="BaroDocs">
             <input placeholder="Search" class="w-100 mt-3 p-2" type="text" id="searchbar">
             <ul id="search-results" class="bg-light" style="display: none;"></ul>
         </div>
     </div>
 
-    <div id="hover" class="bg-light"></div>
+    <div class="overlay"></div>
+
+    <div id="hover" class="bg-light" style="display: none;"></div>
     
     <!-- TODO: bundle all of these into one js file -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
