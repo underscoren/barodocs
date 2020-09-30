@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BaroDocs</title>
+    <meta name="description" content="Automatically generated documentation for Barotrauma">
+    <!-- TODO: bundle the css in the build step -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/4.5.2/slate/bootstrap.min.css" integrity="sha512-YjfrOR3ZCJt6xtVn6J6O/CkcCkR1pSZgva/yScp7pq9cc25tWZRtVdKHMoz1T5au89zWfRO+lwMBk+n+bCzsjQ==" crossorigin="anonymous" />
     <style>
-        @media (min-width: 768px) { 
+        @media (min-width: 768px) {
             #search div {
                 width: 50%;
             }
@@ -49,6 +51,7 @@
             padding: 0;
             border-bottom-left-radius: 0.25rem;
             border-bottom-right-radius: 0.25rem;
+            overflow-y: hidden;
         }
 
         #search-results li {
@@ -86,7 +89,7 @@
             background-color: rgba(0,0,0,0.7);
             z-index: 9998;
             opacity: 0;
-            transition: all 0.5s ease-in-out;
+            transition: opacity 0.5s ease-in-out;
             top: 0;
         }
 
@@ -99,10 +102,7 @@
 <body>
     <nav id="sidebar" class="bg-primary border-right" >
         <button id="sidebar-dismiss" type="button" class="close position-fixed text-danger"><span>&times;</span></button>
-        <div class="d-flex border-bottom mt-4">
-            <input placeholder="Search" type="text" class="m-2 p-1 d-flex flex-fill" id="sidebar-searchbar">
-        </div>
-        <ul id="sidebar-results" class="w-100 list-unstyled" style="overflow-y: hidden;"></ul>
+        <div id="sidebarsearchbar">
     </nav>
     
     <div id="page"></div>
@@ -110,20 +110,14 @@
     <div id="search" class="container-md">
         <div class="col mx-auto" style="margin-top: 25vh">
             <img class="w-75 d-block mx-auto" src="barodocs.png" alt="BaroDocs">
-            <input placeholder="Search" class="w-100 mt-3 p-2" type="text" id="searchbar">
-            <ul id="search-results" class="bg-light" style="display: none;"></ul>
+            <div id="mainsearchbar" class="w-100"></div>
         </div>
     </div>
 
     <div class="overlay"></div>
 
     <div id="hover" class="bg-light" style="display: none;"></div>
-    
-    <!-- TODO: bundle all of these into one js file -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.4/umd/popper.min.js" integrity="sha512-eUQ9hGdLjBjY3F41CScH3UX+4JDSI9zXeroz7hJ+RteoCaY+GP/LDoM8AO+Pt+DRFw3nXqsjh9Zsts8hnYv8/A==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha512-M5KW3ztuIICmVIhjSqXe01oV2bpe248gOxqmlcYrEzAvws7Pw3z6BK0iGbrwvdrUQUhi3eXgtxp5I8PDo9YfjQ==" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-search@2.0.0/dist/umd/js-search.min.js" integrity="sha256-LD9UsSATk+xTzAbk8nD2gA2bjHKvetXtCMDAFkM2K5Q=" crossorigin="anonymous"></script>
-    <script src="main.js"></script>
+
+    <script src="bundle.js"></script>
 </body>
 </html>

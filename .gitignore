@@ -1,3 +1,5 @@
 node_modules/*
 build/Content/*
+build/Data/*
+build/bundle.js
 items.json

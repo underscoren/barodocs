@@ -37,6 +37,7 @@ function getOrDefault(value, defaultValue) {
 class Item {
     //xmlObject;
     sourceFile;
+    type = "item";
     
     name;
     description;
@@ -125,7 +126,6 @@ class Item {
                             multiplier: localPrice.attributes.multiplier,
                             sold: getOrDefault(localPrice.attributes.sold, true),
                             minavailable: getOrDefault(localPrice.attributes.minavailable, 0),
-                            maxavailable: getOrDefault(localPrice.attributes.maxavailable, 0),
                         }
                     }
                 break;
@@ -160,6 +160,26 @@ class Item {
                         }
                     }
                 break;
+                case "itemcontainer":
+                    this.container = {
+                        size: childNode.attributes.capacity,
+                    }
+
+                    for (const containerNode of childNode.children) {
+                        if(containerNode.name.toLowerCase() == "containable") {
+                            this.container.items = undefined;
+                        
+                            if(containerNode.attributes.items) this.container.items = containerNode.attributes.items.split(",");
+                            if(containerNode.attributes.identifiers) this.container.items = containerNode.attributes.identifiers.split(",");
+                        }
+                        if(containerNode.name.toLowerCase() == "requireditem") {
+                            this.container.requireditem = {
+                                items: containerNode.attributes.items,
+                                type: containerNode.attributes.type
+                            }
+                        }
+                    }
+                break;
             }
         }
     }
@@ -177,13 +197,6 @@ function parseItemFile(baroPath, filePath, languageXML) {
             
             console.log("Parsing",filePath);
             const itemMatches = data.match(/<item [^\/]*>/gi);
-            if(itemMatches) {
-                console.log("Found",itemMatches.length,"item tags via regex");
-            } else {
-                console.log("Found no item tags via regex");
-            }
-
-            if(filePath == "Content/Items/Containers/containers.xml") debugger;
     
             const xmlObject = parser(data);
             if(xmlObject.root.name.toLowerCase() == "items") {
@@ -191,7 +204,19 @@ function parseItemFile(baroPath, filePath, languageXML) {
                 for (const item of xmlObject.root.children) {
                     items.push(new Item(baroPath, filePath, item, languageXML));
                 }
+
                 console.log("Added",items.length,"items");
+                
+                // these warnings are mostly for development purposes. they can be safely ignored. 
+                // if you check the xml files, some of them use item names as the item tag instead of the default "Item", hence no item tags are found
+                if(itemMatches) {
+                    if(itemMatches.length != items.length) {
+                        console.warn("  Found",itemMatches.length,"item tags via regex, but",items.length,"were added");
+                    }
+                } else {
+                    console.warn("  Found no item tags via regex, but",items.length,"were added");
+                }
+
                 resolve(items);
             } else if (xmlObject.root.name.toLowerCase() == "item") {
                 // for some reason ladder.xml had the item tag on the root node
