@@ -3,8 +3,14 @@
   "version": "0.1.0",
   "description": "Barotrauma documentation generator based on Content Package scraping",
   "main": "scraper.js",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/underscoren/barodocs.git"
+  },
   "scripts": {
-    "build": "node scraper.js",
+    "scrape": "node scraper-src/scraper.js",
+    "build": "webpack --mode production",
+    "build-dev": "set GENERATE_SOURCEMAP=true && webpack --mode development",
     "start": "node server.js"
   },
   "keywords": [
@@ -15,8 +21,23 @@
   "author": "_n#1111",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^4.5.2",
     "express": "^4.17.1",
+    "jquery": "^3.5.1",
+    "js-search": "^2.0.0",
+    "popper.js": "^1.16.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/plugin-syntax-class-properties": "^7.10.4",
+    "@babel/preset-env": "^7.11.5",
+    "@babel/preset-react": "^7.10.4",
+    "babel-loader": "^8.1.0",
     "image-size": "^0.9.1",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
     "xml-parser": "^1.2.1"
   }
 }
