@@ -23,7 +23,7 @@ function ItemTags(props) {
 
 function ItemHeader(props) {
     const item = props.item
-    return (
+    return [
         <div className="col-lg-8 col-sm-12 d-inline-block">
             <ItemName item={item} />
             <div className="col">
@@ -34,15 +34,15 @@ function ItemHeader(props) {
                 <span className="text-muted mr-1">Source File:</span>
                 <span className="text-success">{item.sourceFile}</span>
             </div>
-            <div className='col-lg-4 col-sm-12 d-inline-block'>
-                <div className='col mt-sm-3 mt-md-0'>
-                    <ImageElement item={item} optimalSize={8} type="sprite" />
-                    <ImageElement item={item} optimalSize={8} type="inventoryIcon" />
-                </div>
-            </div>
             <p className="lead col-12 mt-4">{item.description}</p>
+        </div>,
+        <div className='col-lg-4 col-sm-12 d-inline-block'>
+            <div className='col mt-sm-3 mt-md-0'>
+                <ImageElement item={item} optimalSize={8} type="sprite" />
+                <ImageElement item={item} optimalSize={8} type="inventoryIcon" />
+            </div>
         </div>
-    )
+    ]
 }
 
 function PriceCard(props) {
