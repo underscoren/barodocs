@@ -30,6 +30,7 @@ Some of the game's xml files have syntax errors. The game's xml parser doesn't s
  - Create ContentParsers for all the other content types (currently only Items are parsed)
  - Parse the rest of the tags found in Item ContentParser
  - Allow the user to specify the `contentPackPath` and `languagePath` using command line arguments (yargs library?)
+ - Improve search functionality
  - Improve hover elements in web app
  - Improve mobile browsing experience
  - Replace all usage of jquery and replace bootstrap with bootstrap-react

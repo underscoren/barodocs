@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import $ from "jquery";
-import { TagList, DisplayImageElement } from "./util";
+import { getItemIfNeeded } from "../util";
+import { TagList, DisplayImageElement } from "./components";
 
 // gets the contents of the hover element from an item
 function HoverContentsItem(props) {
@@ -22,12 +23,31 @@ function HoverContentsItem(props) {
     </div>]
 }
 
+function HoverContentsAffliction(props) {
+    const affliction = props.affliction;
+
+    return [
+    <div className='col mt-2'>
+        <span className='h5 text-primary'>{affliction.name}</span>
+        <span className='h6 text-secondary ml-1'>{affliction.identifier}</span>
+    </div>,
+    <div className='col my-2'>
+        <span className='h6 text-info mr-1'>{affliction.afflictiontype}</span>
+    </div>,
+    <div className="mx-auto d-block" style={{width: "5rem"}}>
+        <DisplayImageElement item={affliction} optimalSize={5} />
+    </div>
+    ]
+}
+
 function HoverContents(props) {
     const item = props.item;
 
     switch(item.type) {
         case "item":
             return <HoverContentsItem item={item} />
+        case "affliction":
+            return <HoverContentsAffliction affliction={item} />
         default:
             console.warn("Unknown item type");
             return <div className="m-3"><p className="text-error">Error</p></div>;
@@ -35,6 +55,7 @@ function HoverContents(props) {
 }
 
 function mouseEnterHandler(item) {
+    item = getItemIfNeeded(item);
     $("#hover").show();
     ReactDOM.render(
         <HoverContents item={item} />,

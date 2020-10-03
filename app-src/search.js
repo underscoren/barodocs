@@ -1,17 +1,21 @@
 import * as React from "react";
 import Data from "./data"
-import { DisplayImageElement, pageEventHandler } from "./util";
+import { pageEventHandler } from "./util";
+import { DisplayImageElement } from "./content/components";
 
 // returns search results from a search string
 function complexSearch(searchString) {
+    // TODO: implement a better search algorithm that allows for multiple complex search functions
     if(searchString.toLowerCase().startsWith("tag: ")) {
         const searchStringTrimmed = searchString.slice(5).toLowerCase();
         if(searchStringTrimmed.length == 0) return [];
         const results = [];
         
         for (const item of Data.items) {
-            if(item.tags.filter(tag => {return tag.startsWith(searchStringTrimmed)}).length)
-                results.push(item);
+            if(item.tags) {
+                if(item.tags.filter(tag => {return tag.startsWith(searchStringTrimmed)}).length)
+                    results.push(item);
+            }
         }
 
         return results;
@@ -25,6 +29,21 @@ function complexSearch(searchString) {
         for (const item of Data.items) {
             if(item.category) {
                 if(item.category.toLowerCase().startsWith(searchStringTrimmed))
+                    results.push(item);
+            }
+        }
+
+        return results;
+    }
+
+    if(searchString.toLowerCase().startsWith("type: ")) {
+        const searchStringTrimmed = searchString.slice(6).toLowerCase();
+        if(searchStringTrimmed.length == 0) return [];
+        const results = [];
+
+        for (const item of Data.items) {
+            if(item.type) {
+                if(item.type.toLowerCase().startsWith(searchStringTrimmed))
                     results.push(item);
             }
         }

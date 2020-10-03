@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const parser = require("xml-parser");
-const { parseItemFile } = require("./ContentParsers");
+const { parseItemFile, parseAfflictionFile } = require("./ContentParsers");
 
 const buildPath = path.join(__dirname,"../build/");
 
@@ -21,9 +21,13 @@ let promises = []
 
 // TODO: create ContentParsers for the other content types
 for (const childNode of xmlObject.root.children) {
-    switch(childNode.name.toLowerCase()){
+    switch(childNode.name.toLowerCase()) {
         case "item":
             promises.push(parseItemFile(buildPath, childNode.attributes.file, xmlLanguageObject));
+            break;
+        case "afflictions":
+            promises.push(parseAfflictionFile(buildPath, childNode.attributes.file, xmlLanguageObject));
+            break;
     }
 }
 

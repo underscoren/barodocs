@@ -1,6 +1,9 @@
-const Item = require("./Item");
+const { Item, parseItemFile } = require("./Item");
+const { Affliction, parseAfflictionFile } = require("./Affliction");
 
 module.exports = {
-    Item: Item.Item,
-    parseItemFile: Item.parseItemFile,
+    Item,
+    parseItemFile,
+    Affliction,
+    parseAfflictionFile,
 };
