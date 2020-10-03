@@ -1,18 +1,8 @@
 import * as React from "react";
-import Page from "./page";
-import { TagList, ImageElement, getItemByIdentifier, HoverImageElement } from "./util";
-import Data from "./data";
-
-function ItemName(props) {
-    const item = props.item;
-    return (
-        <div className="col mt-1">
-            <p className="display-4">{item.name}</p>
-            <span className="text-muted mr-1">Identifier:</span>
-            <span className="text-secondary">{item.identifier}</span>
-        </div>
-    )
-}
+import Page from "../page";
+import { getItemByIdentifier } from "../util";
+import { ItemName, TagList, ImageElement, HoverImageElement, Card } from "./components";
+import Data from "../data";
 
 function ItemCategory(props) {
     if(!props.item.category) return null;
@@ -55,21 +45,18 @@ function ItemHeader(props) {
     )
 }
 
-function Card(props) {
-    return (
-    <div className='col mb-3'>
-        <div className='card'>
-            <div className='card-body'>
-                <h5 className='card-title'>{props.title}</h5>
-                {props.children}
-            </div>
-        </div>
-    </div>
-    )
-}
-
 function PriceCard(props) {
     const item = props.item;
+
+    // default to multiplier of 1 and not sold
+    for (const type of ["city", "military", "mine", "outpost", "research"]) {
+        if(!item.price[type]) {
+            item.price[type] = {
+                multiplier: 1,
+                sold: "false"
+            }
+        }
+    }
 
     return (
         <Card title="Price" >
@@ -179,7 +166,7 @@ function ContainerCard(props) {
             {item.container.requireditem ? 
             <div className='card-text'>
                 <span className='text-muted mr-1'>Required Item:</span>
-                
+                <HoverImageElement item={getItemByIdentifier(item.container.requireditem.items)} optimalSize={2} />
             </div> : null}
         </Card>
     )

@@ -23,6 +23,11 @@ $(document).on("mousemove", event => {
     });
 });
 
+$(document).on("keyup", event => {
+    if(event.key == "Tab")
+        $("#sidebar, .overlay").toggleClass("active");
+})
+
 // load json and render components
 new Data();
 Data.load().then(json => {
