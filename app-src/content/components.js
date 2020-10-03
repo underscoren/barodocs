@@ -111,7 +111,7 @@ function DisplayImageElement(props) {
 
 function HoverElement(props) {
     const item = props.item;
-    <span className="d-inline-block"
+    return <span className={"d-inline-block " + props.className}
         onMouseEnter={() => mouseEnterHandler(item)} 
         onMouseLeave={() => mouseLeaveHandler()} 
         onClick={() => pageEventHandler(item)}
@@ -122,10 +122,10 @@ function HoverElement(props) {
 
 function HoverImageElement(props) {
     const {item, optimalSize} = props;
-        <HoverElement item={item}>
+    return <HoverElement item={item}>
             <DisplayImageElement item={item} optimalSize={optimalSize} />
         </HoverElement>
-    return 
+    
 }
 
 export {

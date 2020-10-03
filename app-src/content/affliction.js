@@ -42,9 +42,15 @@ function AfflictionHeader(props) {
 
 function Range(props) {
     if(!props.min || !props.max) return null;
+    let {name, min, max, percentage} = props
+    if(percentage) {
+        min = `${Math.floor(min * 100)}%`
+        max = `${Math.floor(max * 100)}%`
+    }
+    
     return <div className="col">
-        <span className="text-muted mr-1">{props.name}:</span>
-        <span>{props.min} -&gt; {props.max}</span>
+        <span className="text-muted mr-1">{name}:</span>
+        <span>{min} -&gt; {max}</span>
     </div>
 }
 
@@ -60,7 +66,7 @@ function StatusEffect(props) {
         statusEffect.affliction ? <div className="col">
             <span className="text-muted mr-1">Affliction:</span>
             <HoverElement className="mr-1" item={afflictionObj}>{afflictionObj.name}</HoverElement>
-            <span className="text-success">+{statusEffect.affliction.amount}/s</span>
+            <span className="text-success"> +{statusEffect.affliction.amount}/s</span>
         </div> : null,
     ]
 }
@@ -80,10 +86,10 @@ function Effect(props) {
             </div> : null}
             
             {/* TODO: Change this to show % Health Decrease if multiplybymaxvitality == true */}
-            <Range name={"Health Decrease" + (effect.multiplybymaxvitality ? "*" : "")} min={effect.minvitalitydecrease} max={effect.maxvitalitydecrease} />
+            <Range name={"Health Decrease" + (effect.multiplybymaxvitality ? "*" : "")} min={effect.minvitalitydecrease} max={effect.maxvitalitydecrease} percentage={effect.multiplybymaxvitality == "true"} />
 
             {effect.multiplybymaxvitality == "true" ? <div className="col">
-                <span className="text-muted">*Multiplied by Max Health</span>
+                <span className="text-muted">*Percent of Max Health</span>
             </div> : null}
 
             {effect.resistancefor ? <div className="col">
@@ -92,7 +98,7 @@ function Effect(props) {
             </div> : null}
 
             {minmaxlist.map(name => <div className="col">
-                <Range name={name} min={effect["min"+name]} max={effect["max"+name]} />
+                <Range name={name} min={effect["min"+name]} max={effect["max"+name]} percentage={true} />
             </div>)}
 
             {effect.statusEffects.length ? <div className="col">
