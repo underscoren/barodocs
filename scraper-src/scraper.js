@@ -17,7 +17,7 @@ const xmlObject = parser(contentPackXMLFile);
 
 //console.log(xmlLanguageObject);
 
-let promises = []
+const promises = []
 
 // TODO: create ContentParsers for the other content types
 for (const childNode of xmlObject.root.children) {
@@ -33,12 +33,20 @@ for (const childNode of xmlObject.root.children) {
 
 Promise.all(promises).then(itemLists => {
     let allItems = [].concat.apply([],itemLists);
-    console.log("Done parsing all items:",allItems.length);
+    console.log("Done parsing all items. Found ",allItems.length,"total items");
     
-    fs.writeFile(path.join(buildPath,"Content/items.json"),JSON.stringify(allItems,null,2), (err) => {
-        if(err) throw err;
-        console.log("Wrote items.json file");
-    });
+    fs.writeFile(
+        path.join(buildPath,"Content/items.json"),
+        JSON.stringify(allItems, (key, value) => 
+            Array.isArray(value) && value.length == 0 // replacer to remove all 0 length arrays
+            ? undefined
+            : value
+        , 2),
+        (err) => {
+            if(err) throw err;
+            console.log("Wrote Content/items.json file");
+        }
+    );
 }).catch(err => {
     console.error("Error parsing content");
     console.error(err);

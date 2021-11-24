@@ -62,7 +62,15 @@ Data.load().then(json => {
 
     // if the window hash is changed (e.g. via going back/forward in history), render the correct page
     $(window).on("hashchange", () => {
-        setupPage();
+        if(window.location.hash == "") {
+            $("#searchbar").val("");
+            $("#search").show();
+            $("#sidebar").hide();
+            $("#page").hide();
+            $("#searchbar").trigger("change");
+        } else {
+            setupPage();
+        }
     });
     
 }).catch(err => {

@@ -19,13 +19,14 @@ class Affliction {
     indicatorlimb;
     showiconthreshold;
     activationthreshold;
+    karmachangeonapplied;
 
     effects;
 
 
     constructor(baroPath, sourceFile, afflictionXML, languageXML) {
         if(!afflictionXML) {
-            console.warn("itemXML is undefined");
+            console.warn("afflictionXML is undefined");
             return;
         }
         this.sourceFile = sourceFile;
@@ -45,6 +46,7 @@ class Affliction {
         this.maxstrength = afflictionXML.attributes.maxstrength;
         this.activationthreshold = afflictionXML.attributes.activationthreshold;
         this.limbspecific = afflictionXML.attributes.limbspecific;
+        this.karmachangeonapplied = afflictionXML.attributes.karmachangeonapplied;
         if(this.limbspecific == "false") {
             this.indicatorlimb = afflictionXML.attributes.indicatorlimb;
         }
@@ -54,11 +56,26 @@ class Affliction {
         for (const childNode of afflictionXML.children) {
             let dimension;
             let statusEffects;
+            let statValues;
+            let spritedims;
+            let elementsize;
+            let elementindex;
             switch(childNode.name.toLowerCase()) {
                 case "icon":
+                    spritedims = undefined;
+                    if (childNode.attributes.sourcerect)
+                        spritedims = childNode.attributes.sourcerect.split(",");
+                    
+                    if (childNode.attributes.sheetindex) {
+                        elementsize = childNode.attributes.sheetelementsize.split(",");
+                        elementindex = childNode.attributes.sheetindex.split(",");
+
+                        spritedims = [`${elementsize[0] * elementindex[0]}`, `${elementsize[1] * elementindex[1]}`, `${elementsize[0]}`, `${elementsize[1]}`];
+                    }
+
                     this.icon = {
                         file: fixPath(sourceFile, childNode.attributes.texture),
-                        sourcerect: childNode.attributes.sourcerect.split(","),
+                        sourcerect: spritedims,
                         color: childNode.attributes.color,
                     }
 
@@ -70,6 +87,7 @@ class Affliction {
                 break;
                 case "effect":
                     statusEffects = [];
+                    statValues = [];
                     for (const effectNode of childNode.children) {
                         if(effectNode.name.toLowerCase() == "statuseffect") {
                             let affliction = undefined;
@@ -86,8 +104,18 @@ class Affliction {
                                 target: effectNode.attributes.target,
                                 speedMultiplier: effectNode.attributes.SpeedMultiplier,
                                 setvalue: effectNode.attributes.setvalue,
-                                affliction: affliction,
+                                affliction,
                             });
+                        }
+
+                        if(effectNode.name.toLowerCase() == "statvalue") {
+                            let statvalue = {
+                                stattype: effectNode.attributes.stattype,
+                                minvalue: effectNode.attributes.minvalue,
+                                maxvalue: effectNode.attributes.maxvalue,
+                            }
+                            
+                            statValues.push(statvalue);
                         }
                     }
 
@@ -106,7 +134,8 @@ class Affliction {
                         resistancefor: childNode.attributes.resistancefor,
                         minresistance: childNode.attributes.minresistance,
                         maxresistance: childNode.attributes.maxresistance,
-                        statusEffects: statusEffects,
+                        statusEffects,
+                        statValues,
                     });
                 break;
             }
