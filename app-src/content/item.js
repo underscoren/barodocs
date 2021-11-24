@@ -9,8 +9,8 @@ function ItemCategory(props) {
     if(!item.category) return null;
     
     return [
-        <span className='text-muted mr-1'>Category:</span>,
-        <span className='text-info mr-1'>{item.category}</span>   
+        <span className="text-muted mr-1">Category:</span>,
+        <span className="text-info mr-1">{item.category}</span>   
     ]
 }
 
@@ -40,8 +40,8 @@ function ItemHeader(props) {
             </div>
             <p className="lead col-12 mt-4">{item.description}</p>
         </div>,
-        <div className='col-lg-4 col-sm-12 d-inline-block'>
-            <div className='col mt-sm-3 mt-md-0'>
+        <div className="col-lg-4 col-sm-12 d-inline-block">
+            <div className="col mt-sm-3 mt-md-0">
                 <ImageElement item={item} optimalSize={8} type="sprite" />
                 <ImageElement item={item} optimalSize={8} type="inventoryIcon" />
             </div>
@@ -64,18 +64,18 @@ function PriceCard(props) {
 
     return (
         <Card title="Price" >
-            <div className='card-text text-centered mb-2'>
-                <span className='text-muted mr-1'>Base:</span>
+            <div className="card-text text-centered mb-2">
+                <span className="text-muted mr-1">Base:</span>
                 <span>{item.price.baseprice}</span>
             </div>
-            <table className='table table-bordered'>
+            <table className="table table-bordered">
                 <thead>
                     <tr>
-                        <th scope='col'><abbr title='City'>CIT</abbr></th>
-                        <th scope='col'><abbr title='Military'>MIL</abbr></th>
-                        <th scope='col'><abbr title='Mine'>MIN</abbr></th>
-                        <th scope='col'><abbr title='Outpost'>OUT</abbr></th>
-                        <th scope='col'><abbr title='Research'>RES</abbr></th>
+                        <th scope="col"><abbr title="City">CIT</abbr></th>
+                        <th scope="col"><abbr title="Military">MIL</abbr></th>
+                        <th scope="col"><abbr title="Mine">MIN</abbr></th>
+                        <th scope="col"><abbr title="Outpost">OUT</abbr></th>
+                        <th scope="col"><abbr title="Research">RES</abbr></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -104,8 +104,8 @@ function DeconstructCard(props) {
 
     return (
         <Card title="Deconstruct">
-            <div className='card-text mb-2'>
-                <span className='text-muted mr-1'>Time:</span>
+            <div className="card-text mb-2">
+                <span className="text-muted mr-1">Time:</span>
                 <span>{item.deconstruct.time}s</span>
             </div>
             {item.deconstruct.items.map(itemname => 
@@ -124,24 +124,24 @@ function FabricateCard(props) {
 
     return (
         <Card title="Fabricate" >
-            {fabricate.time ? <div className='card-text'>
-                <span className='text-muted mr-1'>Time:</span>
+            {fabricate.time ? <div className="card-text">
+                <span className="text-muted mr-1">Time:</span>
                 <span>{fabricate.time}s</span>
             </div> : null}
-            {fabricate.skill ? <div className='card-text'>
-                <span className='text-muted mr-1'>Skill</span>
-                <span className='text-info mr-1'>{fabricate.skill.name}</span>
+            {fabricate.skill ? <div className="card-text">
+                <span className="text-muted mr-1">Skill</span>
+                <span className="text-info mr-1">{fabricate.skill.name}</span>
                 <span>[{fabricate.skill.level}]</span>
             </div> : null}
-            {fabricate.requiresrecipe ? <div className='card-text'>
-                <span className='text-muted mr-1'>Requires recipe:</span>
+            {fabricate.requiresrecipe ? <div className="card-text">
+                <span className="text-muted mr-1">Requires recipe:</span>
                 <span>{fabricate.requiresrecipe ? "True" : "False"}</span>
             </div> : null}
-            {fabricate.fabricators ? <div className='card-text mb-2'>
-                <span className='text-muted mr-1'>Made in:</span>
+            {fabricate.fabricators ? <div className="card-text mb-2">
+                <span className="text-muted mr-1">Made in:</span>
                 <span>{fabricate.fabricators}</span>
             </div> : null}
-            {fabricate.items.map(itemname => <div className='p-2 d-inline-block' role='button' style={{height: "3.5rem"}}>
+            {fabricate.items.map(itemname => <div className="p-2 d-inline-block" role="button" style={{height: "3.5rem"}}>
                 <HoverImageElement item={getItemByIdentifier(itemname)} optimalSize={3.5} />
             </div>
             )}
@@ -154,18 +154,18 @@ function ContainerCard(props) {
 
     return (
         <Card title="Container" >
-            <div className='card-text'>
-                <span className='text-muted mr-1'>Size:</span>
+            <div className="card-text">
+                <span className="text-muted mr-1">Size:</span>
                 <span>{item.container.size}</span>
             </div>
             {item.container.items ? 
-            <div className='card-text'>
-                <span className='text-muted mr-1'>Items:</span>
+            <div className="card-text">
+                <span className="text-muted mr-1">Items:</span>
                 <TagList tags={item.container.items} />
             </div> : null}
             {item.container.requireditem ? 
-            <div className='card-text'>
-                <span className='text-muted mr-1'>Required Item:</span>
+            <div className="card-text">
+                <span className="text-muted mr-1">Required Item:</span>
                 <HoverImageElement item={getItemByIdentifier(item.container.requireditem.items)} optimalSize={2} />
             </div> : null}
         </Card>
