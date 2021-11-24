@@ -1,28 +1,32 @@
 import * as React from "react";
 import Page from "../page";
 import { getItemByIdentifier } from "../util";
-import { ItemName, TagList, ImageElement, HoverImageElement, Card } from "./components";
+import { ItemName, TagList, ImageElement, HoverImageElement, Card, AfflictionInfos, StatusEffects } from "./components";
 import Data from "../data";
 
 function ItemCategory(props) {
-    if(!props.item.category) return null;
+    const { item } = props;
+    if(!item.category) return null;
+    
     return [
         <span className='text-muted mr-1'>Category:</span>,
-        <span className='text-info mr-1'>{props.item.category}</span>   
+        <span className='text-info mr-1'>{item.category}</span>   
     ]
 }
 
 function ItemTags(props) {
-    if(!props.item.tags) return null 
+    const { item } = props;
+    if(!item.tags) return null;
     
     return [
         <span className="text-muted mr-1">Tags:</span>,
-        <TagList tags={props.item.tags}/>
+        <TagList tags={item.tags}/>
     ];
 }
 
 function ItemHeader(props) {
-    const item = props.item
+    const { item } = props;
+
     return [
         <div className="col-lg-8 col-sm-12 d-inline-block">
             <ItemName item={item} />
@@ -46,7 +50,7 @@ function ItemHeader(props) {
 }
 
 function PriceCard(props) {
-    const item = props.item;
+    const { item } = props;
 
     // default to multiplier of 1 and not sold
     for (const type of ["city", "military", "mine", "outpost", "research"]) {
@@ -96,7 +100,7 @@ function PriceCard(props) {
 }
 
 function DeconstructCard(props) {
-    const item = props.item;
+    const { item } = props;
 
     return (
         <Card title="Deconstruct">
@@ -114,34 +118,30 @@ function DeconstructCard(props) {
 }
 
 function FabricateCard(props) {
-    const item = props.item;
-
-    const fabricatorObject = getItemByIdentifier(item.fabricate.fabricators);
-    let fabricatorElement;
-    if(fabricatorObject) {
-        fabricatorElement = <span>{fabricatorObject.name}</span>;
-        //addHoverEventHandlers(fabricatorElement, fabricatorObject);
-    } else {
-        fabricatorElement = <span>{item.fabricate.fabricators}</span>;
-    }
+    const { item } = props;
+    const { fabricate } = item;
+    
 
     return (
         <Card title="Fabricate" >
-            <div className='card-text'>
+            {fabricate.time ? <div className='card-text'>
                 <span className='text-muted mr-1'>Time:</span>
-                <span>{item.fabricate.time}s</span>
-            </div>
-            {item.fabricate.skill ? 
-            <div className='card-text'>
-                <span className='text-muted mr-1'>Skill</span>
-                <span className='text-info mr-1'>{item.fabricate.skill.name}</span>
-                <span>[{item.fabricate.skill.level}]</span>
+                <span>{fabricate.time}s</span>
             </div> : null}
-            <div className='card-text mb-2'>
+            {fabricate.skill ? <div className='card-text'>
+                <span className='text-muted mr-1'>Skill</span>
+                <span className='text-info mr-1'>{fabricate.skill.name}</span>
+                <span>[{fabricate.skill.level}]</span>
+            </div> : null}
+            {fabricate.requiresrecipe ? <div className='card-text'>
+                <span className='text-muted mr-1'>Requires recipe:</span>
+                <span>{fabricate.requiresrecipe ? "True" : "False"}</span>
+            </div> : null}
+            {fabricate.fabricators ? <div className='card-text mb-2'>
                 <span className='text-muted mr-1'>Made in:</span>
-                {fabricatorElement}
-            </div>
-            {item.fabricate.items.map(itemname => <div className='p-2 d-inline-block' role='button' style={{height: "3.5rem"}}>
+                <span>{fabricate.fabricators}</span>
+            </div> : null}
+            {fabricate.items.map(itemname => <div className='p-2 d-inline-block' role='button' style={{height: "3.5rem"}}>
                 <HoverImageElement item={getItemByIdentifier(itemname)} optimalSize={3.5} />
             </div>
             )}
@@ -150,7 +150,7 @@ function FabricateCard(props) {
 }
 
 function ContainerCard(props) {
-    const item = props.item;
+    const { item } = props;
 
     return (
         <Card title="Container" >
@@ -173,10 +173,149 @@ function ContainerCard(props) {
 }
 
 function HoverItemList(props) {
-    const items = props.items;
-    const optimalSize = props.optimalSize;
+    const { items, optimalSize } = props;
 
-    return items.map(item => <HoverImageElement item={item} optimalSize={optimalSize} />)
+    return items.map(item => <HoverImageElement item={item} optimalSize={optimalSize} />);
+}
+
+function Attack(props) {
+    const { attack } = props;
+    
+    return (
+        <div className="col">
+            <h5 className="mt-2">Attack:</h5>
+            {attack.itemdamage ? <div className="col">
+                <span className="text-muted mr-1">Item damage:</span>
+                <span>{attack.itemdamage}</span>
+            </div> : null}
+            {attack.structuredamage ? <div className="col">
+                <span className="text-muted mr-1">Structure damage:</span>
+                <span>{attack.structuredamage}</span>
+            </div> : null}
+            {attack.ballastfloradamage ? <div className="col">
+                <span className="text-muted mr-1">Ballast flora damage:</span>
+                <span>{attack.ballastfloradamage}</span>
+            </div> : null}
+            {attack.onlyhumans ? <div className="col">
+                <span className="text-muted mr-1">Only humans:</span>
+                <span>{attack.onlyhumans ? "True" : "False"}</span>
+            </div> : null}
+            {attack.severlimbsprobability ? <div className="col">
+                <span className="text-muted mr-1">Sever Limbs Chance:</span>
+                <span>{(attack.severlimbsprobability*100).toFixed(1)}%</span>
+            </div> : null}
+            {attack.targetimpulse ? <div className="col">
+                <span className="text-muted mr-1">Target Impulse:</span>
+                <span>{attack.targetimpulse}</span>
+            </div> : null}
+            {attack.targetforce ? <div className="col">
+                <span className="text-muted mr-1">Target Force:</span>
+                <span>{attack.targetforce}</span>
+            </div> : null}
+            
+
+            {attack.afflictions?.length ? <div className="col">
+                <h5 className="mt-2">Afflictions:</h5>
+                <div className="col row">
+                    <AfflictionInfos afflictions={attack.afflictions} />
+                </div>
+            </div> : null}
+
+            {attack.statuseffects?.length ? <div className="col">
+                <h5 className="mt-2">Attack Status Effects:</h5>
+                <StatusEffects statusEffects={attack.statusEffects} />
+            </div> : null}
+        </div>
+    )
+}
+
+function MeleeWeaponCard(props) {
+    const { item } = props;
+    const { meleeweapon } = item;
+
+    return (
+        <Card title="Melee Weapon">
+            {meleeweapon.reload ? <div className="card-text">
+                <span className="text-muted mr-1">Swing time:</span>
+                <span>{meleeweapon.reload}s</span>
+            </div> : null}
+            {meleeweapon.allowhitmultiple ? <div className="card-text">
+                <span className="text-muted mr-1">Multiple Hits:</span>
+                <span>{meleeweapon.allowhitmultiple ? "True" : "False"}</span>
+            </div> : null}
+            <div className="card-text">
+                {meleeweapon.attack ? <Attack attack={meleeweapon.attack} /> : null}
+                {meleeweapon.statuseffects?.length ? <div className="col">
+                    <h5 className="mt-2">Item Status Effects:</h5>
+                    <StatusEffects statusEffects={meleeweapon.statuseffects} />
+                </div> : null}
+            </div>
+        </Card>
+    )
+}
+
+function HoldableCard(props) {
+    const { item } = props;
+    const { holdable } = item;
+
+    return (
+        <Card title="Holdable">
+            {holdable.reload ? <div className="card-text">
+                <span className="text-muted mr-1">Swing time:</span>
+                <span>{holdable.reload}s</span>
+            </div> : null}
+            <div className="card-text">
+                {holdable.statuseffects?.length ? <div className="col">
+                    <h5 className="mt-2">Status Effects:</h5>
+                    <StatusEffects statusEffects={holdable.statuseffects} />
+                </div> : null}
+            </div>
+        </Card>
+    )
+}
+
+function AiTargetCard(props) {
+    const { item } = props;
+    const { aitarget } = item;
+    
+    return <Card title="AI Target">
+        {aitarget.sightrange ? <div className="card-text">
+            <span className="text-muted mr-1">Sight range:</span>
+            <span>{aitarget.sightrange}m</span>
+        </div> : null}
+        {aitarget.maxsightrange ? <div className="card-text">
+            <span className="text-muted mr-1">Sight range max:</span>
+            <span>{aitarget.maxsightrange}m</span>
+        </div> : null}
+        {aitarget.minsightrange ? <div className="card-text">
+            <span className="text-muted mr-1">Sight range min:</span>
+            <span>{aitarget.minsightrange}m</span>
+        </div> : null}
+        {aitarget.soundrange ? <div className="card-text">
+            <span className="text-muted mr-1">Sound range:</span>
+            <span>{aitarget.soundrange}m</span>
+        </div> : null}
+        {aitarget.maxsoundrange ? <div className="card-text">
+            <span className="text-muted mr-1">Sound range max:</span>
+            <span>{aitarget.maxsoundrange}m</span>
+        </div> : null}
+        {aitarget.minsoundrange ? <div className="card-text">
+            <span className="text-muted mr-1">Sound range min:</span>
+            <span>{aitarget.minsoundrange}m</span>
+        </div> : null}
+        {aitarget.fadeouttime ? <div className="card-text">
+            <span className="text-muted mr-1">Fade out:</span>
+            <span>{aitarget.fadeouttime}s</span>
+        </div> : null}
+        {aitarget.static ? <div className="card-text">
+            <span className="text-muted mr-1">Static:</span>
+            <span>{aitarget.static ? "True" : "False"}</span>
+        </div> : null}
+        {aitarget.sonardisruption ? <div className="card-text">
+            <span className="text-muted mr-1">Sonar Disruption:</span>
+            <span>{aitarget.sonardisruption ? "True" : "False"}</span>
+        </div> : null}
+    </Card>
 }
 
 function ItemCards(props) {
@@ -184,6 +323,7 @@ function ItemCards(props) {
     
     const cards = [];
     if(item.price) cards.push(<PriceCard item={item} />);
+    if(item.aitarget) cards.push(<AiTargetCard item={item} />);
     if(item.deconstruct) cards.push(<DeconstructCard item={item} />);
     if(item.fabricate) cards.push(<FabricateCard item={item} />);
     if(item.container) cards.push(<ContainerCard item={item} />);
@@ -193,13 +333,13 @@ function ItemCards(props) {
 
     for (const otherItem of Data.items) {
         if(otherItem.deconstruct) {
-            if(otherItem.deconstruct.items.includes(item.identifier)) {
+            if(otherItem.deconstruct.items?.includes(item.identifier)) {
                 madeByItemList.push(otherItem);
             }
         }
 
         if(otherItem.fabricate) {
-            if(otherItem.fabricate.items.includes(item.identifier)) {
+            if(otherItem.fabricate.items?.includes(item.identifier)) {
                 usedByItemList.push(otherItem);
             }
         }
@@ -220,6 +360,10 @@ function ItemCards(props) {
             </div>
         </Card>
     )
+    
+    // longest cards should be at the bottom
+    if(item.holdable) cards.push(<HoldableCard item={item} />);
+    if(item.meleeweapon) cards.push(<MeleeWeaponCard item={item} />);
 
     return cards;
 }

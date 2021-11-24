@@ -62,6 +62,7 @@ function pageEventHandler(item) {
     const itemObj = getItemIfNeeded(item);
     Data.isClick = true; // prevent the page from rendering twice
     window.location.hash = itemObj.identifier;
+    $("#page").show(); // make sure the page is actually shown
     $("#search").hide();
     $("#sidebar").show();
     $("#sidebar, .overlay").removeClass("active");

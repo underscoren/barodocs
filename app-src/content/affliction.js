@@ -71,6 +71,12 @@ function StatusEffect(props) {
     ]
 }
 
+function StatValue(props) {
+    const { statValue } = props;
+
+    return <Range name={statValue.stattype} min={statValue.minvalue} max={statValue.maxvalue} />
+}
+
 function Effect(props) {
     const effect = props.effect;
 
@@ -86,7 +92,7 @@ function Effect(props) {
             </div> : null}
             
             {/* TODO: Change this to show % Health Decrease if multiplybymaxvitality == true */}
-            <Range name={"Health Decrease" + (effect.multiplybymaxvitality ? "*" : "")} min={effect.minvitalitydecrease} max={effect.maxvitalitydecrease} percentage={effect.multiplybymaxvitality == "true"} />
+            <Range name={"Health Decrease" + (effect.multiplybymaxvitality ? "*" : "")} min={effect.minvitalitydecrease} max={effect.maxvitalitydecrease} percentage={effect.multiplybymaxvitality} />
 
             {effect.multiplybymaxvitality == "true" ? <div className="col">
                 <span className="text-muted">*Percent of Max Health</span>
@@ -101,9 +107,14 @@ function Effect(props) {
                 <Range name={name} min={effect["min"+name]} max={effect["max"+name]} percentage={true} />
             </div>)}
 
-            {effect.statusEffects.length ? <div className="col">
+            {effect.statusEffects?.length ? <div className="col">
                 <h5 className="mt-2">Status Effects:</h5>
                 {effect.statusEffects.map(statusEffect => <StatusEffect statusEffect={statusEffect} />)}
+            </div> : null}
+
+            {effect.statValues?.length ? <div className="col">
+                <h5 className="mt-2">Stat Values:</h5>
+                {effect.statValues.map(statValue => <StatValue statValue={statValue} />)}
             </div> : null}
         </Card>
     )

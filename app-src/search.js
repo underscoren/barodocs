@@ -6,8 +6,8 @@ import { DisplayImageElement } from "./content/components";
 // returns search results from a search string
 function complexSearch(searchString) {
     // TODO: implement a better search algorithm that allows for multiple complex search functions
-    if(searchString.toLowerCase().startsWith("tag: ")) {
-        const searchStringTrimmed = searchString.slice(5).toLowerCase();
+    if(searchString.toLowerCase().startsWith("#")) {
+        const searchStringTrimmed = searchString.slice(1).toLowerCase();
         if(searchStringTrimmed.length == 0) return [];
         const results = [];
         
@@ -21,8 +21,8 @@ function complexSearch(searchString) {
         return results;
     }
     
-    if(searchString.toLowerCase().startsWith("category: ")) {
-        const searchStringTrimmed = searchString.slice(10).toLowerCase();
+    if(searchString.toLowerCase().startsWith(":")) {
+        const searchStringTrimmed = searchString.slice(1).toLowerCase();
         if(searchStringTrimmed.length == 0) return [];
         const results = [];
 
@@ -36,8 +36,8 @@ function complexSearch(searchString) {
         return results;
     }
 
-    if(searchString.toLowerCase().startsWith("type: ")) {
-        const searchStringTrimmed = searchString.slice(6).toLowerCase();
+    if(searchString.toLowerCase().startsWith("@")) {
+        const searchStringTrimmed = searchString.slice(1).toLowerCase();
         if(searchStringTrimmed.length == 0) return [];
         const results = [];
 
