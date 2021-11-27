@@ -1,6 +1,6 @@
 {
   "name": "barodocs",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Barotrauma documentation generator based on Content Package scraping",
   "main": "scraper.js",
   "repository": {
@@ -22,12 +22,13 @@
   "license": "ISC",
   "dependencies": {
     "bootstrap": "^4.5.2",
-    "chart.js": "^2.9.3",
+    "chart.js": "^3.6.0",
     "express": "^4.17.1",
     "jquery": "^3.5.1",
     "js-search": "^2.0.0",
     "popper.js": "^1.16.1",
     "react": "^16.13.1",
+    "react-chartjs-2": "^4.0.0",
     "react-dom": "^16.13.1"
   },
   "devDependencies": {

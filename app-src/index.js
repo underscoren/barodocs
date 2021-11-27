@@ -8,6 +8,7 @@ import * as JsSearch from 'js-search';
 import Data from "./data";
 import { MainSearchbar, SidebarSearchbar } from "./search";
 import { getItemByIdentifier, renderPage } from "./util";
+import { Page } from "./page";
 
 // setup event handlers for dismissing the sidebar
 $("#sidebar-dismiss, .overlay").on("click", () => {
@@ -52,7 +53,19 @@ Data.load().then(json => {
         $("#search").hide();
         $("#sidebar").show();
         const item = getItemByIdentifier(window.location.hash.slice(1));
-        renderPage(item);
+        try {
+            renderPage(item);
+        } catch (err) {
+            ReactDOM.render(<Page>
+                <p className="mt-5 display-4 text-danger text-center">Error</p>
+                <div className="col mr-4 mt-3">
+                    <p>Error while rendering page:</p>
+                    <p>{err.message}</p>
+                    <p>See console for more information</p>
+                </div>
+            </Page>, 
+            $("#page")[0]);
+        }
     }
 
     // if the url hash is set, automatically render the correct page
@@ -76,4 +89,4 @@ Data.load().then(json => {
 }).catch(err => {
     console.error("Error loading items.json");
     console.error(err);
-})
+});

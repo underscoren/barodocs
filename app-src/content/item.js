@@ -1,7 +1,7 @@
 import * as React from "react";
 import Page from "../page";
 import { getItemByIdentifier } from "../util";
-import { ItemName, TagList, ImageElement, HoverImageElement, Card, AfflictionInfos, StatusEffects } from "./components";
+import { ItemName, TagList, ImageElement, HoverImageElement, Card, AfflictionInfos, StatusEffects, HoverItemList } from "./components";
 import Data from "../data";
 
 function ItemCategory(props) {
@@ -101,14 +101,19 @@ function PriceCard(props) {
 
 function DeconstructCard(props) {
     const { item } = props;
+    const { deconstruct } = item;
 
     return (
         <Card title="Deconstruct">
             <div className="card-text mb-2">
                 <span className="text-muted mr-1">Time:</span>
-                <span>{item.deconstruct.time}s</span>
+                <span>{deconstruct.time}s</span>
             </div>
-            {item.deconstruct.items.map(itemname => 
+            <div className="col">
+                {deconstruct.chooserandom ? <span className="badge badge-pill badge-primary mr-1">Random</span> : null}
+                {deconstruct.amount ? <span className="badge badge-pill badge-secondary mr-1">{deconstruct.amount}</span> : null}
+            </div>
+            {deconstruct.items.map(itemname => 
                 <div className="p-2 d-inline-block" style={{height: "3.5rem"}}>
                     <HoverImageElement item={getItemByIdentifier(itemname)} optimalSize={3.5} />
                 </div>
@@ -129,22 +134,21 @@ function FabricateCard(props) {
                 <span>{fabricate.time}s</span>
             </div> : null}
             {fabricate.skill ? <div className="card-text">
-                <span className="text-muted mr-1">Skill</span>
-                <span className="text-info mr-1">{fabricate.skill.name}</span>
+                <span className="text-muted mr-1">Skill:</span>
+                <span className="text-info mr-1">{fabricate.skill.identifier}</span>
                 <span>[{fabricate.skill.level}]</span>
-            </div> : null}
-            {fabricate.requiresrecipe ? <div className="card-text">
-                <span className="text-muted mr-1">Requires recipe:</span>
-                <span>{fabricate.requiresrecipe ? "True" : "False"}</span>
             </div> : null}
             {fabricate.fabricators ? <div className="card-text mb-2">
                 <span className="text-muted mr-1">Made in:</span>
                 <span>{fabricate.fabricators}</span>
             </div> : null}
-            {fabricate.items.map(itemname => <div className="p-2 d-inline-block" role="button" style={{height: "3.5rem"}}>
-                <HoverImageElement item={getItemByIdentifier(itemname)} optimalSize={3.5} />
+            <div class="card-text mb-2">
+                {fabricate.requiresrecipe ? <span className="badge badge-pill badge-secondary mr-1">Requires Recipe</span> : null}
             </div>
-            )}
+            {fabricate.items.map(itemname => 
+            <div className="p-2 d-inline-block" role="button" style={{height: "3.5rem"}}>
+                <HoverImageElement item={getItemByIdentifier(itemname)} optimalSize={3.5} />
+            </div>)}
         </Card>
     )
 }
@@ -170,12 +174,6 @@ function ContainerCard(props) {
             </div> : null}
         </Card>
     )
-}
-
-function HoverItemList(props) {
-    const { items, optimalSize } = props;
-
-    return items.map(item => <HoverImageElement item={item} optimalSize={optimalSize} />);
 }
 
 function Attack(props) {
@@ -223,7 +221,7 @@ function Attack(props) {
 
             {attack.statuseffects?.length ? <div className="col">
                 <h5 className="mt-2">Attack Status Effects:</h5>
-                <StatusEffects statusEffects={attack.statusEffects} />
+                <StatusEffects statuseffects={attack.statuseffects} />
             </div> : null}
         </div>
     )
@@ -243,11 +241,16 @@ function MeleeWeaponCard(props) {
                 <span className="text-muted mr-1">Multiple Hits:</span>
                 <span>{meleeweapon.allowhitmultiple ? "True" : "False"}</span>
             </div> : null}
+            {meleeweapon.requiredskill ? <div className="card-text">
+                <span className="text-muted mr-1">Skill:</span>
+                <span className="text-info mr-1">{meleeweapon.requiredskill.identifier}</span>
+                <span>[{meleeweapon.requiredskill.level}]</span>
+            </div> : null}
             <div className="card-text">
                 {meleeweapon.attack ? <Attack attack={meleeweapon.attack} /> : null}
                 {meleeweapon.statuseffects?.length ? <div className="col">
                     <h5 className="mt-2">Item Status Effects:</h5>
-                    <StatusEffects statusEffects={meleeweapon.statuseffects} />
+                    <StatusEffects statuseffects={meleeweapon.statuseffects} />
                 </div> : null}
             </div>
         </Card>
@@ -264,10 +267,15 @@ function HoldableCard(props) {
                 <span className="text-muted mr-1">Swing time:</span>
                 <span>{holdable.reload}s</span>
             </div> : null}
+            {holdable.requiredskill ? <div className="card-text">
+                <span className="text-muted mr-1">Skill:</span>
+                <span className="text-info mr-1">{holdable.requiredskill.identifier}</span>
+                <span>[{holdable.requiredskill.level}]</span>
+            </div> : null}
             <div className="card-text">
                 {holdable.statuseffects?.length ? <div className="col">
                     <h5 className="mt-2">Status Effects:</h5>
-                    <StatusEffects statusEffects={holdable.statuseffects} />
+                    <StatusEffects statuseffects={holdable.statuseffects} />
                 </div> : null}
             </div>
         </Card>
@@ -281,27 +289,27 @@ function AiTargetCard(props) {
     return <Card title="AI Target">
         {aitarget.sightrange ? <div className="card-text">
             <span className="text-muted mr-1">Sight range:</span>
-            <span>{aitarget.sightrange}m</span>
+            <span>{aitarget.sightrange/100}m</span>
         </div> : null}
         {aitarget.maxsightrange ? <div className="card-text">
             <span className="text-muted mr-1">Sight range max:</span>
-            <span>{aitarget.maxsightrange}m</span>
+            <span>{aitarget.maxsightrange/100}m</span>
         </div> : null}
         {aitarget.minsightrange ? <div className="card-text">
             <span className="text-muted mr-1">Sight range min:</span>
-            <span>{aitarget.minsightrange}m</span>
+            <span>{aitarget.minsightrange/100}m</span>
         </div> : null}
         {aitarget.soundrange ? <div className="card-text">
             <span className="text-muted mr-1">Sound range:</span>
-            <span>{aitarget.soundrange}m</span>
+            <span>{aitarget.soundrange/100}m</span>
         </div> : null}
         {aitarget.maxsoundrange ? <div className="card-text">
             <span className="text-muted mr-1">Sound range max:</span>
-            <span>{aitarget.maxsoundrange}m</span>
+            <span>{aitarget.maxsoundrange/100}m</span>
         </div> : null}
         {aitarget.minsoundrange ? <div className="card-text">
             <span className="text-muted mr-1">Sound range min:</span>
-            <span>{aitarget.minsoundrange}m</span>
+            <span>{aitarget.minsoundrange/100}m</span>
         </div> : null}
         {aitarget.fadeouttime ? <div className="card-text">
             <span className="text-muted mr-1">Fade out:</span>

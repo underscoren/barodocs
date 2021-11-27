@@ -1,8 +1,57 @@
 const fs = require("fs");
 const path = require("path");
 const parser = require("xml-parser");
-const sizeOf = require("image-size");
-const { fixPath, getCaseInsensetiveKey, getOrDefault } = require("./util");
+const { getCaseInsensetiveKey } = require("./util");
+const { StatusEffect, CroppedImage } = require("./Components");
+
+class AfflictionEffect {
+    minstrength;
+    maxstrength;
+
+    minvitalitydecrease;
+    maxvitalitydecrease;
+
+    strengthchange;
+    multiplybymaxvitality;
+
+    minbuffmultiplier;
+    maxbuffmultiplier;
+
+    minspeedmultiplier;
+    maxspeedmultiplier;
+
+    minskillmultiplier;
+    maxskillmultiplier;
+
+    resistancefor;
+    minresistance;
+    maxresistance;
+
+    statuseffects = [];
+    statvalues = [];
+
+    constructor(XMLelement) {
+        const possibleAttributes = Object.keys(this).filter(attrName => !(attrName == "statuseffects" || attrName == "statvalues"));
+        for (const possibleAttribute of possibleAttributes)
+            this[possibleAttribute] = getCaseInsensetiveKey(XMLelement.attributes, possibleAttribute);
+        
+        for (const childElement of XMLelement.children) {
+            switch (childElement.name.toLowerCase()) {
+                case "statuseffect":
+                    this.statuseffects.push(new StatusEffect(childElement));
+                    break;
+                case "statvalue":
+                    this.statvalues.push({
+                        stattype: childElement.attributes.stattype,
+                        value: childElement.attributes.value,
+                        minvalue: childElement.attributes.minvalue,
+                        maxvalue: childElement.attributes.maxvalue,
+                    });
+                    break;
+            }
+        }
+    }
+}
 
 class Affliction {
     sourceFile;
@@ -14,6 +63,7 @@ class Affliction {
     icon;
 
     afflictiontype;
+    isbuff;
     maxstrength;
     limbspecific;
     indicatorlimb;
@@ -21,7 +71,7 @@ class Affliction {
     activationthreshold;
     karmachangeonapplied;
 
-    effects;
+    effects = [];
 
 
     constructor(baroPath, sourceFile, afflictionXML, languageXML) {
@@ -34,7 +84,7 @@ class Affliction {
         const entityName = languageXML.root.children.find(child => {
             return child.name == "afflictionname."+afflictionXML.attributes.identifier
         });
-        this.name = entityName ? entityName.content : "Undefined"
+        this.name = entityName ? entityName.content : "Undefined";
         
         const entityDescription = languageXML.root.children.find(child => {
             return child.name == "afflictiondescription."+afflictionXML.attributes.identifier
@@ -47,96 +97,18 @@ class Affliction {
         this.activationthreshold = afflictionXML.attributes.activationthreshold;
         this.limbspecific = afflictionXML.attributes.limbspecific;
         this.karmachangeonapplied = afflictionXML.attributes.karmachangeonapplied;
+        this.isbuff = afflictionXML.attributes.isbuff;
         if(this.limbspecific == "false") {
             this.indicatorlimb = afflictionXML.attributes.indicatorlimb;
         }
 
-        this.effects = [];
-
         for (const childNode of afflictionXML.children) {
-            let dimension;
-            let statusEffects;
-            let statValues;
-            let spritedims;
-            let elementsize;
-            let elementindex;
             switch(childNode.name.toLowerCase()) {
                 case "icon":
-                    spritedims = undefined;
-                    if (childNode.attributes.sourcerect)
-                        spritedims = childNode.attributes.sourcerect.split(",");
-                    
-                    if (childNode.attributes.sheetindex) {
-                        elementsize = childNode.attributes.sheetelementsize.split(",");
-                        elementindex = childNode.attributes.sheetindex.split(",");
-
-                        spritedims = [`${elementsize[0] * elementindex[0]}`, `${elementsize[1] * elementindex[1]}`, `${elementsize[0]}`, `${elementsize[1]}`];
-                    }
-
-                    this.icon = {
-                        file: fixPath(sourceFile, childNode.attributes.texture),
-                        sourcerect: spritedims,
-                        color: childNode.attributes.color,
-                    }
-
-                    dimension = sizeOf(fixPath(baroPath, sourceFile, childNode.attributes.texture));
-                    this.icon.imageSize = [
-                        dimension.width,
-                        dimension.height,
-                    ]
+                    this.icon = new CroppedImage(childNode, baroPath, sourceFile);
                 break;
                 case "effect":
-                    statusEffects = [];
-                    statValues = [];
-                    for (const effectNode of childNode.children) {
-                        if(effectNode.name.toLowerCase() == "statuseffect") {
-                            let affliction = undefined;
-                            if(effectNode.children[0]) { // this is a bit hacky, but seems to cover all cases in the vanilla game
-                                if(effectNode.children[0].name.toLowerCase() == "affliction") {
-                                    affliction = {
-                                        identifier: effectNode.children[0].attributes.identifier,
-                                        amount: effectNode.children[0].attributes.amount,
-                                    }
-                                }
-                            }
-                            
-                            statusEffects.push({
-                                target: effectNode.attributes.target,
-                                speedMultiplier: effectNode.attributes.SpeedMultiplier,
-                                setvalue: effectNode.attributes.setvalue,
-                                affliction,
-                            });
-                        }
-
-                        if(effectNode.name.toLowerCase() == "statvalue") {
-                            let statvalue = {
-                                stattype: effectNode.attributes.stattype,
-                                minvalue: effectNode.attributes.minvalue,
-                                maxvalue: effectNode.attributes.maxvalue,
-                            }
-                            
-                            statValues.push(statvalue);
-                        }
-                    }
-
-                    // i wish there was a better way to organise this without being overly complicated
-                    this.effects.push({
-                        strengthchange: childNode.attributes.strengthchange,
-                        minstrength: childNode.attributes.minstrength,
-                        maxstrength: childNode.attributes.maxstrength,
-                        minvitalitydecrease: childNode.attributes.minvitalitydecrease,
-                        maxvitalitydecrease: childNode.attributes.maxvitalitydecrease,
-                        multiplybymaxvitality: childNode.attributes.multiplybymaxvitality,
-                        minspeedmultiplier: childNode.attributes.minspeedmultiplier,
-                        maxspeedmultiplier: childNode.attributes.maxspeedmultiplier,
-                        minbuffmultiplier: childNode.attributes.minbuffmultiplier,
-                        maxbuffmultiplier: childNode.attributes.maxbuffmultiplier,
-                        resistancefor: childNode.attributes.resistancefor,
-                        minresistance: childNode.attributes.minresistance,
-                        maxresistance: childNode.attributes.maxresistance,
-                        statusEffects,
-                        statValues,
-                    });
+                    this.effects.push(new AfflictionEffect(childNode));
                 break;
             }
         }
@@ -158,7 +130,7 @@ function parseAfflictionFile(baroPath, filePath, languageXML) {
                 let afflictions = [];
                 for (const affliction of xmlObject.root.children) {
                     // ignore non-afflictions
-                    if(affliction.name.toLowerCase() == "cprsettings") continue; 
+                    if(affliction.name.toLowerCase() == "cprsettings") continue;
                     if(affliction.name.toLowerCase() == "damageoverlay") continue;
                     
                     afflictions.push(new Affliction(baroPath, filePath, affliction, languageXML));

@@ -8,7 +8,7 @@ function complexSearch(searchString) {
     // TODO: implement a better search algorithm that allows for multiple complex search functions
     
     if (searchString.trim() == "") return [];
-    let searchResults = [];
+    let searchResults = new Set();
     const searchTokens = searchString.trim().split(" ");
     
     // a complex search means we have to manually iterate over every item, otherwise just delegate searching to the (much better) jsSearch library
@@ -26,18 +26,20 @@ function complexSearch(searchString) {
             for (const searchToken of searchTokens) {
                 const searchTokenSlice = searchToken.slice(1);
                 const firstChar = searchToken.slice(0,1);
+                if(!searchTokenSlice.length) continue;
+
                 switch (firstChar) {
                     case "#":
-                        if(item.tags?.filter(tag => {return tag.startsWith(searchTokenSlice)}).length)
-                            searchResults.push(item);
+                        if(item.tags?.find(tag => tag.toLowerCase().startsWith(searchTokenSlice)))
+                            searchResults.add(item);
                         break;
                     case ":":
-                        if(item.category?.toLowerCase().split(",").any().startsWith(searchTokenSlice) || item.afflictiontype?.toLowerCase().startsWith(searchTokenSlice))
-                            searchResults.push(item);
+                        if((item.category ?? item.afflictiontype)?.toLowerCase().split(",").find(category => category.startsWith(searchTokenSlice)))
+                            searchResults.add(item);
                         break;
                     case "@":
                         if(item.type?.toLowerCase().startsWith(searchTokenSlice))
-                            searchResults.push(item);
+                            searchResults.add(item);
                         break;
                 }
             }
@@ -46,10 +48,10 @@ function complexSearch(searchString) {
 
     if (simpleSearchTokens.length) {
         for (const searchToken of simpleSearchTokens)
-            searchResults = searchResults.concat(Data.jsSearch.search(searchToken));
+            searchResults = new Set(...searchResults, Data.jsSearch.search(searchToken));
     }
 
-    return searchResults;
+    return Array.from(searchResults);
 }
 
 // returns an array of li elements containing search results

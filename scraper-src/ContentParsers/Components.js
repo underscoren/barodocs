@@ -1,4 +1,5 @@
-const { getCaseInsensetiveKey } = require("./util");
+const { fixPath, getCaseInsensetiveKey } = require("./util");
+const sizeOf = require("image-size");
 
 class AiTarget {
     sightrange;
@@ -142,6 +143,8 @@ class StatusEffect {
     type;
     target;
     condition;
+    duration;
+    delay;
     requireditems = [];
     spawnitems = [];
     //spawnCharacters = [];
@@ -151,12 +154,16 @@ class StatusEffect {
     requiredafflictions = [];
     explosions = [];
 
+    healthmultiplier;
+    speedmultiplier;
+
     disabledeltatime;
     setvalue;
     severlimbsprobability;
     fire;
     useitem;
     removeitem;
+    conditional;
     conditions = [];
     giveexperiences = [];
     giveskills = [];
@@ -178,8 +185,26 @@ class StatusEffect {
                 case "condition":
                     this.condition = attributeValue;
                     break;
+                case "duration":
+                    this.duration = attributeValue;
+                    break;
+                case "delay":
+                    this.delay = attributeValue;
+                    break;
                 case "disabledeltatime":
                     this.disabledeltatime = attributeValue;
+                    break;
+                case "setvalue":
+                    this.setvalue = attributeValue;
+                    break;
+                case "conditional":
+                    this.conditional = attributeValue;
+                    break;
+                case "healthmultiplier":
+                    this.healthmultiplier = attributeValue;
+                    break;
+                case "speedmultiplier":
+                    this.speedmultiplier = attributeValue;
                     break;
                 case "severlimbs":
                 case "severlimbsprobability":
@@ -269,6 +294,7 @@ class StatusEffect {
                 case "reduceaffliction":
                     this.reduceafflictions.push({
                         identifier: childElement.attributes.identifier,
+                        type: childElement.attributes.type,
                         strength: childElement.attributes.amount ?? childElement.attributes.strength ?? childElement.attributes.reduceamount,
                     });
                     break;
@@ -295,6 +321,32 @@ class StatusEffect {
     }
 }
 
+class CroppedImage {
+    file;
+    sourcerect;
+    color;
+    imageSize;
+
+    constructor(XMLelement, baroPath, sourceFile) {
+        if (XMLelement.attributes.sourcerect)
+            this.sourcerect = XMLelement.attributes.sourcerect.split(",");
+        
+        if (XMLelement.attributes.sheetindex) {
+            const elementsize = XMLelement.attributes.sheetelementsize.split(",");
+            const elementindex = XMLelement.attributes.sheetindex.split(",");
+
+            this.sourcerect = [`${elementsize[0] * elementindex[0]}`, `${elementsize[1] * elementindex[1]}`, `${elementsize[0]}`, `${elementsize[1]}`];
+        }
+        
+        this.file = fixPath(sourceFile, XMLelement.attributes.texture);
+
+        const dimension = sizeOf(fixPath(baroPath, sourceFile, XMLelement.attributes.texture));
+        this.imageSize = [
+            dimension.width,
+            dimension.height,
+        ]
+    }
+}
 
 module.exports = {
     AiTarget,
@@ -302,4 +354,5 @@ module.exports = {
     Explosion,
     SpawnItemInfo,
     StatusEffect,
+    CroppedImage,
 }

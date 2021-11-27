@@ -36,7 +36,19 @@ function getItemIfNeeded(possibleItemObject) {
 
 // returns the correct page content for different item types
 function PageContents(props) {
-    const item = props.item
+    const { item } = props;
+
+    if(!item) {
+        return (
+            <Page>
+                <p className="mt-5 display-4 text-danger text-center">Error</p>
+                <div className="col mr-4 mt-3">
+                    <p>Item does not exist</p>
+                </div>
+            </Page>
+        );
+    }
+
     switch(item.type) {
         case "item":
             return <ItemPage item={item} />
@@ -45,7 +57,14 @@ function PageContents(props) {
         default:
             console.log(item);
             console.error("Unknown item type",item.type);
-            return <Page><p className="mt-5 text-danger text-center">Error</p></Page>;
+            return (
+                <Page>
+                    <p className="mt-5 display-4 text-danger text-center">Error</p>
+                    <div className="col mr-4 mt-3">
+                        <p>Unknown item type</p>
+                    </div>
+                </Page>
+            );
     }
 }
 
