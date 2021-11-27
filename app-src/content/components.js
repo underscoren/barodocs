@@ -3,7 +3,7 @@ import { mouseEnterHandler, mouseLeaveHandler } from "./hover";
 import { pageEventHandler, getItemByIdentifier } from "../util";
 
 function ItemName(props) {
-    const item = props.item;
+    const { item } = props;
     return (
         <div className="col mt-1">
             <p className="display-4">{item.name}</p>
@@ -15,7 +15,7 @@ function ItemName(props) {
 
 // returns a list of pills with tag names
 function TagList(props) {
-    const tags = props.tags;
+    const { tags } = props;
 
     return tags.map(tag => <span className="badge badge-pill badge-primary">{tag}</span>);
 }
@@ -97,7 +97,7 @@ function ImageElement(props) {
 
 // returns a span with an inventoryIcon (if possible) or a sprite 
 function DisplayImageElement(props) {
-    const {item, optimalSize} = props;
+    const { item, optimalSize } = props;
 
     if(item.inventoryIcon) return <ImageElement item={item} optimalSize={optimalSize} type="inventoryIcon" />;
     if(item.sprite) return <ImageElement item={item} optimalSize={optimalSize} type="sprite" />;
@@ -125,6 +125,12 @@ function HoverImageElement(props) {
             <DisplayImageElement item={item} optimalSize={optimalSize ?? 2} />
         </HoverElement>
     )
+}
+
+function HoverItemList(props) {
+    const { items, optimalSize } = props;
+
+    return items.map(item => <HoverImageElement item={item} optimalSize={optimalSize} />);
 }
 
 function Explosion(props) {
@@ -164,22 +170,56 @@ function Explosion(props) {
     )
 }
 
+/**
+ * A function that attempts to predict if a reduceAfflictionInfo afflictionInfo object will match to an affliction by identifier or type
+ * @param afflictionInfo
+ * @returns Object with bool isIdentifier and a result which is an affliction object if isIdentifier == true or a type string if isIdentifier == false
+ */
+function predictAfflictionInfo(afflictionInfo) {
+    // when reducing an affliction, the game goes through every affliction and does a string comparison of both the identifier and type
+    // so an identifier can be a type and a type can be an identifier (though usually they are the correct one)
+    
+    // assume it's an identifer if it's called an identifier
+    if(afflictionInfo.identifier) {
+        const afflictionObject = getItemByIdentifier(afflictionInfo.identifier);
+
+        if (!afflictionObject) {
+            // it turns out it wasn't an identifier, so instead assume the identifier is actually a type
+            return {isIdentifier: false, result: afflictionInfo.identifier};
+        } else {
+            return {isIdentifier: true, result: afflictionObject};
+        }
+    }
+    
+    // assume all types are actually types, because it's impossible to know otherwise (a type can have the same name as an identifier, e.g. burn)
+    if (afflictionInfo.type) {
+        return {isIdentifier: false, result: afflictionInfo.type}
+    }
+
+    // isn't barotrauma great
+}
+
 function ReduceAfflictionInfo(props) {
-    const { affliction } = props;
+    const { affliction, instant } = props;
+
+    const { isIdentifier, result } = predictAfflictionInfo(affliction);
 
     return (
         <div className="col-lg-6 col-12">
-            <HoverImageElement className="align-middle mr-3" item={getItemByIdentifier(affliction.identifier)} />
+            {isIdentifier == true ? <HoverImageElement className="align-middle mr-3" item={result} optimalSize={2.5} /> : null}
+            {isIdentifier == false ? <span className="mr-2">
+                <TagList tags={result.split(",")} />
+            </span> : null}
             {affliction.strength ? <span className="mb-2 align-middle d-inline-block mr-3">
                 <span className="text-muted mr-1">Strength:</span>
-                <span>-{affliction.strength}</span>
+                <span className="text-danger">-{affliction.strength}{instant == "true" ? "" : "/s"}</span>
             </span> : null}
         </div>
     )
 }
 
 function AfflictionInfo(props) {
-    const { affliction } = props;
+    const { affliction, instant } = props;
 
     return (
         <div className="col-lg-6 col-12">
@@ -187,7 +227,7 @@ function AfflictionInfo(props) {
             <div className="d-inline-block">
                 {affliction.strength ? <div className="d-block">
                     <span className="text-muted mr-1">Strength:</span>
-                    <span>{affliction.strength}</span>
+                    <span className="text-success">{affliction.strength}{instant == "true" ? "" : "/s"}</span>
                 </div> : null}
                 {affliction.probability ? <div className="d-inline-block">
                     <span className="text-muted mr-1">Chance:</span>
@@ -212,7 +252,7 @@ function Conditional(props) {
 
     return (
         <div className="col">
-            <span className="text-muted mr-1">{condition.property}</span>
+            <span className="text-muted mr-1">{condition.property}:</span>
             <span>{condition.condition}</span>
         </div>
     )
@@ -225,51 +265,64 @@ function Conditionals(props) {
 }
 
 function StatusEffect(props) {
-    const { statusEffect } = props;
+    const { statuseffect } = props;
+
+    const possibleStatValues = ["healthmultiplier","speedmultiplier"];
     
     return (
         <div className="col">
             <div className="col">
-                {statusEffect.type ? <span className="badge badge-pill badge-primary mr-1">{statusEffect.type}</span> : null}
-                {statusEffect.target ? <span className="badge badge-pill badge-primary mr-1">{statusEffect.target}</span> : null}
-                {statusEffect.removeitem ? <span className="badge badge-pill badge-secondary mr-1">Remove Item</span> : null}
-                {statusEffect.disabledeltatime ? <span className="badge badge-pill badge-secondary mr-1">Instant</span> : null}
+                {statuseffect.type ? <span className="badge badge-pill badge-primary mr-1">{statuseffect.type}</span> : null}
+                {statuseffect.target ? <span className="badge badge-pill badge-primary mr-1">{statuseffect.target}</span> : null}
+                {statuseffect.removeitem ? <span className="badge badge-pill badge-secondary mr-1">Remove Item</span> : null}
+                {statuseffect.duration ? <span className="badge badge-pill badge-secondary mr-1">{statuseffect.duration}s</span> : null}
+                {statuseffect.delay ? <span className="badge badge-pill badge-secondary mr-1">Delay: {statuseffect.delay}s</span> : null}
+                {statuseffect.disabledeltatime ? <span className="badge badge-pill badge-secondary mr-1">Instant</span> : null}
+                {statuseffect.setvalue ? <span className="badge badge-pill badge-secondary mr-1">Set Value</span> : null}
             </div>
-            {statusEffect.requireditems?.length ? <div className="col text-center">
+            {statuseffect.requireditems?.length ? <div className="col text-center">
                 <span>
-                    <span className="mr-1 mb-1 d-inline-block align-middle">Required item{statusEffect.requireditems.length > 1 ? "s" : ""}:</span>
-                    {statusEffect.requireditems.map(requireditem =>
+                    <span className="mr-1 mb-1 d-inline-block align-middle">Required item{statuseffect.requireditems.length > 1 ? "s" : ""}:</span>
+                    {statuseffect.requireditems.map(requireditem =>
                         <HoverImageElement className="align-middle mr-2" item={getItemByIdentifier(requireditem)} />
                     )}
                 </span>
             </div> : null}
-            {statusEffect.condition ? <div className="col mb-1">
+            {statuseffect.condition ? <div className="col mb-1">
                 <span className="text-muted mr-1">Condition:</span>
-                <span>{statusEffect.condition}</span>
+                <span>{statuseffect.condition}</span>
             </div> : null}
-            {statusEffect.afflictions?.length || statusEffect.reduceafflictions?.length  ? <div className="col">
+            {possibleStatValues.map(statValue => statuseffect[statValue] ? <div className="col mb-1">
+                <span className="text-muted mr-1">{statValue}:</span>
+                <span>{statuseffect[statValue]}</span>
+            </div> : null)}
+            {statuseffect.afflictions?.length || statuseffect.reduceafflictions?.length  ? <div className="col">
                 <h5 className="mt-2">Afflictions:</h5>
                 <div className="col row">
-                    <AfflictionInfos afflictions={statusEffect.afflictions} reduceafflictions={statusEffect.reduceafflictions} />
+                    <AfflictionInfos afflictions={statuseffect.afflictions} reduceafflictions={statuseffect.reduceafflictions} instant={statuseffect.disabledeltatime} />
                 </div>
             </div> : null}
-            {statusEffect.explosion ? <div className="col">
+            {statuseffect.explosions?.length ? <div className="col">
                 <h5 className="mt-2">Explosion:</h5>
-                <Explosion explosion={statusEffect.explosion} />
+                {statuseffect.explosions.flatMap(explosion => [<Explosion explosion={explosion} />, <hr className="my-2" />]).slice(0, -1)}
             </div> : null}
-            {statusEffect.conditionals?.length ? <div className="col">
+            {statuseffect.conditions?.length ? <div className="col">
                 <h5 className="mt-2">Conditions:</h5>
-                <Conditionals conditionals={statusEffect.conditionals} />
+                {statuseffect.conditional ? <div className="col mb-1">
+                    <span className="text-muted mr-1">Condition:</span>
+                    <span>{statuseffect.conditional}</span>
+                </div> : null}
+                <Conditionals conditionals={statuseffect.conditions} />
             </div> : null}
         </div>
     )
 }
 
 function StatusEffects(props) {
-    const { statusEffects } = props;
+    const { statuseffects } = props;
 
-    return statusEffects
-        .flatMap(statusEffect => [<StatusEffect statusEffect={statusEffect} />, <hr className="my-3" style={{"border-top": "1px solid rgba(255, 255, 255, .25)"}} />]) // i should really get to bundling the custom css
+    return statuseffects
+        .flatMap(statuseffect => [<StatusEffect statuseffect={statuseffect} />, <hr className="my-2" />])
         .slice(0, -1);
 }
 
@@ -281,10 +334,12 @@ export {
     DisplayImageElement,
     HoverElement,
     HoverImageElement,
+    HoverItemList,
     StatusEffect,
     StatusEffects,
     Explosion,
     AfflictionInfo,
+    predictAfflictionInfo,
     ReduceAfflictionInfo,
     AfflictionInfos,
     Conditional,

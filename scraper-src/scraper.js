@@ -31,17 +31,18 @@ for (const childNode of xmlObject.root.children) {
     }
 }
 
+// replacer to remove all 0 length arrays
+function removeEmptyArray(key, value) {
+    return (Array.isArray(value) && value.length == 0) ? undefined : value
+}
+
 Promise.all(promises).then(itemLists => {
     let allItems = [].concat.apply([],itemLists);
-    console.log("Done parsing all items. Found ",allItems.length,"total items");
+    console.log("Done parsing all items. Found",allItems.length,"total items");
     
     fs.writeFile(
         path.join(buildPath,"Content/items.json"),
-        JSON.stringify(allItems, (key, value) => 
-            Array.isArray(value) && value.length == 0 // replacer to remove all 0 length arrays
-            ? undefined
-            : value
-        , 2),
+        JSON.stringify(allItems, removeEmptyArray, 2),
         (err) => {
             if(err) throw err;
             console.log("Wrote Content/items.json file");

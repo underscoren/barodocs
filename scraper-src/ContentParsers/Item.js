@@ -1,46 +1,46 @@
 const fs = require("fs");
 const path = require("path");
 const parser = require("xml-parser");
-const sizeOf = require("image-size");
-const { fixPath, getCaseInsensetiveKey, getOrDefault } = require("./util");
-const { StatusEffect, Attack, AiTarget } = require("./Components");
+const { getCaseInsensetiveKey, getOrDefault } = require("./util");
+const { StatusEffect, Attack, AiTarget, CroppedImage } = require("./Components");
 
 class Holdable {
-    reload
+    reload;
     statuseffects = [];
+    requiredskill;
 
     constructor(XMLelement) {
         this.reload = getCaseInsensetiveKey(XMLelement.attributes, "reload");
-        
+
         for (const childNode of XMLelement.children) {
             switch(childNode.name.toLowerCase()) {
                 case "statuseffect":
                     this.statuseffects.push(new StatusEffect(childNode));
+                    break;
+                case "requiredskill":
+                    this.requiredskill = {
+                        identifier: childNode.attributes.identifier,
+                        level: childNode.attributes.level,
+                    }
                     break;
             }
         }
     }
 }
 
-class MeleeWeapon {
-    reload;
+class MeleeWeapon extends Holdable {
     allowhitmultiple;
-
     attack;
-    statuseffects = [];
 
     constructor(XMLelement) {
-        const possibleAttributes = ["reload","allowhitmultiple"];
-        for (const attributeName of possibleAttributes)
-            this[attributeName] = getCaseInsensetiveKey(XMLelement.attributes, attributeName);
+        super(XMLelement);
+
+        this.allowhitmultiple = getCaseInsensetiveKey(XMLelement.attributes, this.allowhitmultiple);
 
         for (const childNode of XMLelement.children) {
             switch(childNode.name.toLowerCase()) {
                 case "attack":
                     this.attack = new Attack(childNode);
-                    break;
-                case "statuseffect":
-                    this.statuseffects.push(new StatusEffect(childNode));
                     break;
             }
         }
@@ -74,6 +74,7 @@ class Item {
     connectionPanel;
     rangedWeapon;
     projectile;
+    wearable;
 
 
     constructor(baroPath, sourceFile, itemXML, languageXML) {
@@ -96,6 +97,7 @@ class Item {
         
         this.identifier = itemXML.attributes.identifier;
         this.category = itemXML.attributes.category;
+        this.variantof = itemXML.attributes.variantof;
         
         const tagAttribute = getCaseInsensetiveKey(itemXML.attributes, "tags");
         if(tagAttribute) {
@@ -105,56 +107,12 @@ class Item {
         }
         
         for (const childNode of itemXML.children) {
-            let dimension;
-            let spritedims;
-            let elementsize;
-            let elementindex;
             switch(childNode.name.toLowerCase()) {
                 case "sprite":
-                    spritedims = undefined;
-                    if (childNode.attributes.sourcerect)
-                        spritedims = childNode.attributes.sourcerect.split(",");
-                    
-                    if (childNode.attributes.sheetindex) {
-                        elementsize = childNode.attributes.sheetelementsize.split(",");
-                        elementindex = childNode.attributes.sheetindex.split(",");
-
-                        spritedims = [`${elementsize[0] * elementindex[0]}`, `${elementsize[1] * elementindex[1]}`, `${elementsize[0]}`, `${elementsize[1]}`];
-                    }
-                    
-                    this.sprite = {
-                        file: fixPath(sourceFile, childNode.attributes.texture),
-                        sourcerect: spritedims,
-                    }
-
-                    dimension = sizeOf(fixPath(baroPath, sourceFile, childNode.attributes.texture));
-                    this.sprite.imageSize = [
-                        dimension.width,
-                        dimension.height,
-                    ]
+                    this.sprite = new CroppedImage(childNode, baroPath, sourceFile);
                     break;
                 case "inventoryicon":
-                    spritedims = undefined;
-                    if (childNode.attributes.sourcerect)
-                        spritedims = childNode.attributes.sourcerect.split(",");
-                    
-                    if (childNode.attributes.sheetindex) {
-                        elementsize = childNode.attributes.sheetelementsize.split(",");
-                        elementindex = childNode.attributes.sheetindex.split(",");
-
-                        spritedims = [`${elementsize[0] * elementindex[0]}`, `${elementsize[1] * elementindex[1]}`, `${elementsize[0]}`, `${elementsize[1]}`];
-                    }
-
-                    this.inventoryIcon = {
-                        file: fixPath(sourceFile, childNode.attributes.texture),
-                        sourcerect: spritedims,
-                    }
-
-                    dimension = sizeOf(fixPath(baroPath, sourceFile, childNode.attributes.texture));
-                    this.inventoryIcon.imageSize = [
-                        dimension.width,
-                        dimension.height,
-                    ]
+                    this.inventoryIcon = new CroppedImage(childNode, baroPath, sourceFile);
                     break;
                 case "price":
                     this.price = {
@@ -173,6 +131,8 @@ class Item {
                 case "deconstruct":
                     this.deconstruct = {
                         time: getOrDefault(childNode.attributes.time, 1),
+                        chooserandom: childNode.attributes.chooserandom,
+                        amount: childNode.attributes.amount,
                         items: [],
                     }
 
@@ -193,7 +153,7 @@ class Item {
                     for (const fabNode of childNode.children) {
                         if(fabNode.name.toLowerCase().startsWith("requiredskill")) {
                             this.fabricate.skill = {
-                                name: fabNode.attributes.identifier,
+                                identifier: fabNode.attributes.identifier,
                                 level: fabNode.attributes.level,
                             }
                         } else {
