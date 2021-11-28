@@ -16,11 +16,21 @@ function AfflictionHeader(props) {
             <span className="text-info">{affliction.afflictiontype}</span>
         </div>
         <div className="col">
-            <span className="text-muted mr-1">Limb Specific:</span>
-            <span className="mr-1">{affliction.limbspecific}</span>
-            {(affliction.limbspecific == "false") ? [
+            {affliction.limbspecific ? [
+                <span className="text-muted mr-1">Limb Specific:</span>,
+                <span className="mr-1">{affliction.limbspecific}</span>
+            ] : null}
+            {affliction.indicatorlimb ? [
                 <span className="text-muted mr-1">Indicator Limb:</span>,
                 <span>{affliction.indicatorlimb}</span>
+            ] : null}
+            {affliction.showiconthreshhold ? [
+                <span className="text-muted mr-1">Icon visible at:</span>,
+                <span className="mr-1">{affliction.showiconthreshhold}</span>
+            ] : null}
+            {affliction.showinhealthscannerthreshold ? [
+                <span className="text-muted mr-1">Health scanner visible at:</span>,
+                <span className="mr-1">{affliction.showinhealthscannerthreshold}</span>
             ] : null}
         </div>
         <div className="col">
@@ -382,7 +392,7 @@ function AfflictionPage(props) {
                 <AfflictionEffectChart affliction={affliction} />
             </div> : null}
             <div id="card-deck" className="row col-12 row-cols-xl-3 row-cols-lg-2 row-cols-1">
-                {affliction.effects?.map(effect => <AfflictionEffectCard effect={effect} />)}
+                {affliction.effects?.map(effect => <AfflictionEffectCard effect={effect} /> )}
                 {causedBy.size ? <Card title="Caused by">
                     <div>
                         <HoverItemList items={Array.from(causedBy)} optimalSize={3.5} />
