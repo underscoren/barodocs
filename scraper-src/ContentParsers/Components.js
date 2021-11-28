@@ -1,6 +1,34 @@
 const { fixPath, getCaseInsensetiveKey } = require("./util");
 const sizeOf = require("image-size");
 
+class Prefab {
+    sourceFile;
+    type;
+
+    name;
+    description;
+    identifier;
+
+    constructor(type, sourceFile, prefabXML, languageXML) {
+        if (!prefabXML) {
+            console.warn(`${sourceFile} has no XML object`);
+        }
+
+        this.sourceFile = sourceFile;
+        this.identifier = prefabXML.attributes.identifier;
+
+        const entityName = languageXML.root.children.find(child =>
+            child.name == `${type}name.${prefabXML.attributes.identifier}`
+        );
+        this.name = entityName?.content ?? "Undefined";
+
+        const entityDescription = languageXML.root.children.find(child =>
+             child.name == `${type}description.${prefabXML.attributes.descriptionidentifier ?? prefabXML.attributes.identifier}`
+        );
+        this.description = entityDescription?.content ?? "Undefined";
+    }
+}
+
 class AiTarget {
     sightrange;
     minsightrange;
@@ -145,6 +173,7 @@ class StatusEffect {
     condition;
     duration;
     delay;
+    range;
     requireditems = [];
     spawnitems = [];
     //spawnCharacters = [];
@@ -172,40 +201,14 @@ class StatusEffect {
     //breakLimb;
 
     constructor(XMLelement) {
+        const possibleAttributes = ["type","target","condition","duration","delay","range","disabledeltatime","setvalue","conditional","healthmultiplier","speedmultiplier"];
+        for (const possibleAttribute of possibleAttributes)
+            this[possibleAttribute] = getCaseInsensetiveKey(XMLelement.attributes, possibleAttribute);
+
         for (const attributeName of Object.keys(XMLelement.attributes)) {
             const attributeValue = XMLelement.attributes[attributeName];
 
             switch (attributeName.toLowerCase()) {
-                case "type":
-                    this.type = attributeValue;
-                    break;
-                case "target":
-                    this.target = attributeValue;
-                    break;
-                case "condition":
-                    this.condition = attributeValue;
-                    break;
-                case "duration":
-                    this.duration = attributeValue;
-                    break;
-                case "delay":
-                    this.delay = attributeValue;
-                    break;
-                case "disabledeltatime":
-                    this.disabledeltatime = attributeValue;
-                    break;
-                case "setvalue":
-                    this.setvalue = attributeValue;
-                    break;
-                case "conditional":
-                    this.conditional = attributeValue;
-                    break;
-                case "healthmultiplier":
-                    this.healthmultiplier = attributeValue;
-                    break;
-                case "speedmultiplier":
-                    this.speedmultiplier = attributeValue;
-                    break;
                 case "severlimbs":
                 case "severlimbsprobability":
                     this.severlimbsprobability = attributeValue;
@@ -328,6 +331,8 @@ class CroppedImage {
     imageSize;
 
     constructor(XMLelement, baroPath, sourceFile) {
+        this.color = getCaseInsensetiveKey(XMLelement.attributes, "color");
+        
         if (XMLelement.attributes.sourcerect)
             this.sourcerect = XMLelement.attributes.sourcerect.split(",");
         
@@ -349,6 +354,7 @@ class CroppedImage {
 }
 
 module.exports = {
+    Prefab,
     AiTarget,
     Attack,
     Explosion,

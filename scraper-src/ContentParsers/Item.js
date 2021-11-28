@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const parser = require("xml-parser");
 const { getCaseInsensetiveKey, getOrDefault } = require("./util");
-const { StatusEffect, Attack, AiTarget, CroppedImage } = require("./Components");
+const { Prefab, StatusEffect, Attack, AiTarget, CroppedImage } = require("./Components");
 
 class Holdable {
     reload;
@@ -47,19 +47,15 @@ class MeleeWeapon extends Holdable {
     }
 }
 
-class Item {
-    //xmlObject;
-    sourceFile;
+class Item extends Prefab {
     type = "item";
-    
-    name;
-    description;
-    identifier;
     category;
     tags;
 
     sprite;
+    spriteColor;
     inventoryIcon;
+    inventoryIconColor;
 
     price;
     fabricate;
@@ -78,33 +74,13 @@ class Item {
 
 
     constructor(baroPath, sourceFile, itemXML, languageXML) {
-        //this.xmlObject = itemXML;
-        this.sourceFile = sourceFile;
-        if(!itemXML) {
-            console.warn("itemXML is undefined");
-            return;
-        }
-
-        const entityName = languageXML.root.children.find(child => {
-            return child.name == "entityname."+itemXML.attributes.identifier
-        });
-        this.name = entityName ? entityName.content : "Undefined"
+        super("entity", sourceFile, itemXML, languageXML);
         
-        const entityDescription = languageXML.root.children.find(child => {
-            return child.name == "entitydescription."+itemXML.attributes.identifier
-        });
-        this.description = entityDescription ? entityDescription.content : "Undefined";
-        
-        this.identifier = itemXML.attributes.identifier;
-        this.category = itemXML.attributes.category;
-        this.variantof = itemXML.attributes.variantof;
-        
-        const tagAttribute = getCaseInsensetiveKey(itemXML.attributes, "tags");
-        if(tagAttribute) {
-            this.tags = tagAttribute.split(",");
-        } else {
-            this.tags = [];
-        }
+        this.category = getCaseInsensetiveKey(itemXML.attributes, "category");
+        this.variantof = getCaseInsensetiveKey(itemXML.attributes, "variantof");
+        this.spriteColor = getCaseInsensetiveKey(itemXML.attributes, "spritecolor");
+        this.inventoryIconColor = getCaseInsensetiveKey(itemXML.attributes, "inventoryiconcolor");
+        this.tags = getCaseInsensetiveKey(itemXML.attributes, "tags")?.split(",");
         
         for (const childNode of itemXML.children) {
             switch(childNode.name.toLowerCase()) {
@@ -197,7 +173,7 @@ class Item {
 // returns an array of Item objects
 function parseItemFile(baroPath, filePath, languageXML) {
     return new Promise((resolve, reject) => {
-        fs.readFile(path.join(baroPath,filePath), (err, data) => {
+        fs.readFile(path.join(baroPath, filePath), (err, data) => {
             if(err) {
                 reject(err);
                 return;

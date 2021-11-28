@@ -1,38 +1,31 @@
 import * as React from "react";
 import Page from "../page";
 import { getItemByIdentifier } from "../util";
-import { ItemName, TagList, ImageElement, HoverImageElement, Card, AfflictionInfos, StatusEffects, HoverItemList } from "./components";
+import { ItemName, TagList, ImageElement, HoverImageElement, Card, AfflictionInfos, StatusEffects, HoverItemList, HoverElement } from "./components";
 import Data from "../data";
-
-function ItemCategory(props) {
-    const { item } = props;
-    if(!item.category) return null;
-    
-    return [
-        <span className="text-muted mr-1">Category:</span>,
-        <span className="text-info mr-1">{item.category}</span>   
-    ]
-}
-
-function ItemTags(props) {
-    const { item } = props;
-    if(!item.tags) return null;
-    
-    return [
-        <span className="text-muted mr-1">Tags:</span>,
-        <TagList tags={item.tags}/>
-    ];
-}
 
 function ItemHeader(props) {
     const { item } = props;
+    const variantItem = item.variantof ? getItemByIdentifier(item.variantof) : undefined;
 
     return [
         <div className="col-lg-8 col-sm-12 d-inline-block">
             <ItemName item={item} />
             <div className="col">
-                <ItemCategory item={item} />
-                <ItemTags item={item} />
+                {item.category ? [
+                    <span className="text-muted mr-1">Category:</span>,
+                    <span className="text-info mr-1">{item.category}</span>
+                ] : null}
+                {item.tags ? [
+                    <span className="text-muted mr-1">Tags:</span>,
+                    <TagList tags={item.tags}/>
+                ] : null}
+                {item.variantof ? [
+                    <span className="text-muted mr-1">Variant of:</span>,
+                    <HoverElement item={variantItem} >
+                        <span><u>{variantItem.name}</u></span>
+                    </HoverElement>
+                ] : null}
             </div>
             <div className="col">
                 <span className="text-muted mr-1">Source File:</span>
@@ -42,8 +35,8 @@ function ItemHeader(props) {
         </div>,
         <div className="col-lg-4 col-sm-12 d-inline-block">
             <div className="col mt-sm-3 mt-md-0">
-                <ImageElement item={item} optimalSize={8} type="sprite" />
-                <ImageElement item={item} optimalSize={8} type="inventoryIcon" />
+                    <ImageElement item={variantItem ?? item} optimalSize={8} type="sprite" color={item?.spriteColor} />
+                    <ImageElement item={variantItem ?? item} optimalSize={8} type="inventoryIcon" color={item?.inventoryIconColor} />
             </div>
         </div>
     ]
@@ -142,7 +135,7 @@ function FabricateCard(props) {
                 <span className="text-muted mr-1">Made in:</span>
                 <span>{fabricate.fabricators}</span>
             </div> : null}
-            <div class="card-text mb-2">
+            <div className="card-text">
                 {fabricate.requiresrecipe ? <span className="badge badge-pill badge-secondary mr-1">Requires Recipe</span> : null}
             </div>
             {fabricate.items.map(itemname => 
@@ -340,17 +333,11 @@ function ItemCards(props) {
     const madeByItemList = [];
 
     for (const otherItem of Data.items) {
-        if(otherItem.deconstruct) {
-            if(otherItem.deconstruct.items?.includes(item.identifier)) {
-                madeByItemList.push(otherItem);
-            }
-        }
-
-        if(otherItem.fabricate) {
-            if(otherItem.fabricate.items?.includes(item.identifier)) {
-                usedByItemList.push(otherItem);
-            }
-        }
+        if(otherItem.deconstruct?.items?.includes(item.identifier))
+            madeByItemList.push(otherItem);
+        
+        if(otherItem.fabricate?.items?.includes(item.identifier))
+            usedByItemList.push(otherItem);
     }
 
     if(usedByItemList.length) cards.push(
@@ -377,8 +364,9 @@ function ItemCards(props) {
 }
 
 function ItemPage(props) {
-    const item = props.item;
+    const { item } = props;
     console.log(item);
+
     return (
         <Page>
             <ItemHeader item={item} />

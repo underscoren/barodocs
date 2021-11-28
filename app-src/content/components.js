@@ -35,7 +35,7 @@ function Card(props) {
 
 // returns a span with a width and height set to optimalSize (maintaining aspect ratio with margins) using background-position to crop an image
 function ImageElement(props) {
-    const {item, optimalSize, type} = props;
+    const {item, optimalSize, type, color} = props;
 
     const img = item[type];
     if(!img) {
@@ -76,9 +76,9 @@ function ImageElement(props) {
             margin: ((optimalSize - optimalHeight)/2)+"rem "+((optimalSize - optimalWidth)/2)+"rem",
         }
 
-        if(img.color) {
-            const rgba = img.color.split(",");
-            rgba[3] = rgba[3]/255;
+        if(img.color || color) {
+            const rgba = (img.color ?? color).split(",");
+            rgba[3] = (rgba[3] ?? 0)/255;
             style.backgroundColor = `rgba(${rgba.join(",")})`;
             style.backgroundBlendMode = "multiply";
             style.maskImage, style.WebkitMaskImage =  `url(./${img.file.replaceAll("\\","/")})`;
@@ -95,23 +95,30 @@ function ImageElement(props) {
     }
 }
 
-// returns a span with an inventoryIcon (if possible) or a sprite 
+// finds the correct CroppedImage to display for an item
 function DisplayImageElement(props) {
-    const { item, optimalSize } = props;
+    const { item, optimalSize, color } = props;
 
-    if(item.inventoryIcon) return <ImageElement item={item} optimalSize={optimalSize} type="inventoryIcon" />;
-    if(item.sprite) return <ImageElement item={item} optimalSize={optimalSize} type="sprite" />;
-    if(item.icon) return <ImageElement item={item} optimalSize={optimalSize} type="icon" />
+    if(item.inventoryIcon) return <ImageElement item={item} optimalSize={optimalSize} type="inventoryIcon" color={color} />;
+    if(item.sprite) return <ImageElement item={item} optimalSize={optimalSize} type="sprite" color={color} />;
+    if(item.icon) return <ImageElement item={item} optimalSize={optimalSize} type="icon" color={color} />
+    if(item.variantof) {
+        const variantItem = getItemByIdentifier(item.variantof);
+        if(!variantItem)
+            console.warn("variantof identifier does not exist");
+        
+        return <DisplayImageElement item={variantItem} optimalSize={optimalSize} color={item.inventoryIconColor ?? item.spriteColor} />
+    }
     
     console.warn(`${item.identifier} has no displayable image`);
     return null;
 }
 
 function HoverElement(props) {
-    const item = props.item;
-    return <span className={"d-inline-block " + props.className}
-        onMouseEnter={() => mouseEnterHandler(item)} 
-        onMouseLeave={() => mouseLeaveHandler()} 
+    const { item } = props;
+    return <span className={`d-inline-block ${props.className}`}
+        onMouseEnter={() => mouseEnterHandler(item)}
+        onMouseLeave={() => mouseLeaveHandler()}
         onClick={() => pageEventHandler(item)}
         role="button">
             {props.children}
@@ -277,6 +284,7 @@ function StatusEffect(props) {
                 {statuseffect.removeitem ? <span className="badge badge-pill badge-secondary mr-1">Remove Item</span> : null}
                 {statuseffect.duration ? <span className="badge badge-pill badge-secondary mr-1">{statuseffect.duration}s</span> : null}
                 {statuseffect.delay ? <span className="badge badge-pill badge-secondary mr-1">Delay: {statuseffect.delay}s</span> : null}
+                {statuseffect.range ? <span className="badge badge-pill badge-secondary mr-1">Range: {statuseffect.range/100}m</span> : null}
                 {statuseffect.disabledeltatime ? <span className="badge badge-pill badge-secondary mr-1">Instant</span> : null}
                 {statuseffect.setvalue ? <span className="badge badge-pill badge-secondary mr-1">Set Value</span> : null}
             </div>

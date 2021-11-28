@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const parser = require("xml-parser");
 const { getCaseInsensetiveKey } = require("./util");
-const { StatusEffect, CroppedImage } = require("./Components");
+const { Prefab, StatusEffect, CroppedImage } = require("./Components");
 
 class AfflictionEffect {
     minstrength;
@@ -53,13 +53,8 @@ class AfflictionEffect {
     }
 }
 
-class Affliction {
-    sourceFile;
+class Affliction extends Prefab {
     type = "affliction";
-    
-    name;
-    description;
-    identifier;
     icon;
 
     afflictiontype;
@@ -68,6 +63,7 @@ class Affliction {
     limbspecific;
     indicatorlimb;
     showiconthreshold;
+    showinhealthscannerthreshold;
     activationthreshold;
     karmachangeonapplied;
 
@@ -75,32 +71,14 @@ class Affliction {
 
 
     constructor(baroPath, sourceFile, afflictionXML, languageXML) {
-        if(!afflictionXML) {
-            console.warn("afflictionXML is undefined");
-            return;
-        }
-        this.sourceFile = sourceFile;
-
-        const entityName = languageXML.root.children.find(child => {
-            return child.name == "afflictionname."+afflictionXML.attributes.identifier
-        });
-        this.name = entityName ? entityName.content : "Undefined";
+        super("affliction", sourceFile, afflictionXML, languageXML);
         
-        const entityDescription = languageXML.root.children.find(child => {
-            return child.name == "afflictiondescription."+afflictionXML.attributes.identifier
-        });
-        this.description = entityDescription ? entityDescription.content : "Undefined";
+        this.afflictiontype = getCaseInsensetiveKey(afflictionXML.attributes, "type");
         
-        this.identifier = afflictionXML.attributes.identifier;
-        this.afflictiontype = afflictionXML.attributes.type;
-        this.maxstrength = afflictionXML.attributes.maxstrength;
-        this.activationthreshold = afflictionXML.attributes.activationthreshold;
-        this.limbspecific = afflictionXML.attributes.limbspecific;
-        this.karmachangeonapplied = afflictionXML.attributes.karmachangeonapplied;
-        this.isbuff = afflictionXML.attributes.isbuff;
-        if(this.limbspecific == "false") {
-            this.indicatorlimb = afflictionXML.attributes.indicatorlimb;
-        }
+        const possibleAttributes = ["isbuff","maxstrength","limbspecific","indicatorlimb","showiconthreshold","showinhealthscannerthreshold","activationthreshold","karmachangeonapplied"]
+        for (const possibleAttribute of possibleAttributes)
+            this[possibleAttribute] = getCaseInsensetiveKey(afflictionXML.attributes, possibleAttribute);
+        
 
         for (const childNode of afflictionXML.children) {
             switch(childNode.name.toLowerCase()) {
