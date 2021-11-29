@@ -23,6 +23,7 @@ In order to run the generator for yourself, you will need node.js, npm and a ret
 Some of the game's xml files have syntax errors. The game's xml parser doesn't seem to mind but `xml-parser` will stop parsing without throwing errors. You'll have to fix them manually. Make sure to only modify the files you copied to the "build" folder, not the files in game itself as you won't be able to join any servers.
 
  - Content/Items/Containers/containers.xml:45 remove the `a` at the end
+ - Content/Items/Containers/containers.xml:475 remove the `\>` at the end
 
 ## TODO
 
@@ -31,7 +32,7 @@ Some of the game's xml files have syntax errors. The game's xml parser doesn't s
  - Parse the rest of the tags found in Item ContentParser
  - Allow the user to specify the `contentPackPath` and `languagePath` using command line arguments (yargs library?)
  - Improve search functionality
- - Improve hover elements in web app
  - Improve mobile browsing experience
  - Replace all usage of jquery and replace bootstrap with bootstrap-react
  - Fix weird bug where the icon image sometimes bugs out
+ - Use a better XML parser

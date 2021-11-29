@@ -330,6 +330,7 @@ function AfflictionPage(props) {
     const { affliction } = props;
     console.log(affliction);
 
+    // these are sets to prevent duplicate entries
     const causedBy = new Set();
     const removedBy = new Set();
 
@@ -356,18 +357,33 @@ function AfflictionPage(props) {
 
     for (const item of Data.items) {
         if(item.type == "item") {
-            for (const possibleObject of [item.holdable, item.meleeweapon, item.meleeweapon?.attack]) {
+            // look through item and attack status effects
+            for (const possibleObject of [
+                    item.holdable, 
+                    item.meleeweapon,  item.meleeweapon?.attack, 
+                    item.rangedweapon, item.rangedweapon?.attack,
+                    item.throwable,    item.throwable?.attack,
+                    item.projectile,   item.projectile?.attack,
+                ]) {
                 const results = searchAllStatusEffects(possibleObject);
                 if (results?.isCausedBy) causedBy.add(item);
                 if (results?.isRemovedBy) removedBy.add(item);
             }
 
-            item.meleeweapon?.attack?.afflictions?.forEach(otherAffliction => {
-                if (otherAffliction.identifier == affliction.identifier || otherAffliction.afflictiontype == affliction.afflictiontype) {
-                    causedBy.add(item)
-                    return;
-                }
-            });
+            // look through attack afflictions
+            for (const possibleObject of [
+                item.meleeweapon?.attack,
+                item.rangedweapon?.attack,
+                item.throwable?.attack,
+                item.projectile?.attack,
+            ]) {
+                possibleObject?.afflictions?.forEach(otherAffliction => {
+                    if (otherAffliction.identifier == affliction.identifier || otherAffliction.afflictiontype == affliction.afflictiontype) {
+                        causedBy.add(item)
+                        return;
+                    }
+                });
+            }
         }
 
         if (item.type == "affliction") {
