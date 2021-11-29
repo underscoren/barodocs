@@ -1,7 +1,7 @@
 import * as React from "react";
 import Page from "../page";
 import { getItemByIdentifier } from "../util";
-import { ItemName, TagList, ImageElement, HoverImageElement, Card, AfflictionInfos, StatusEffects, HoverItemList, HoverElement } from "./components";
+import { ItemName, TagList, ImageElement, HoverImageElement, Card, AfflictionInfos, StatusEffects, HoverItemList, HoverElement, PossibleItem } from "./components";
 import Data from "../data";
 
 function ItemHeader(props) {
@@ -27,6 +27,14 @@ function ItemHeader(props) {
                     </HoverElement>
                 ] : null}
             </div>
+            {item.maxstacksize ? <div className="col">
+                <span className="text-muted mr-1">Stack size:</span>
+                <span>{item.maxstacksize}</span>
+            </div> : null}
+            {item.impacttolerance ? <div className="col">
+                <span className="text-muted mr-1">Impact tolerance:</span>
+                <span>{item.impacttolerance}</span>
+            </div> : null}
             <div className="col">
                 <span className="text-muted mr-1">Source File:</span>
                 <span className="text-success">{item.sourceFile}</span>
@@ -138,9 +146,9 @@ function FabricateCard(props) {
             <div className="card-text">
                 {fabricate.requiresrecipe ? <span className="badge badge-pill badge-secondary mr-1">Requires Recipe</span> : null}
             </div>
-            {fabricate.items.map(itemname => 
+            {fabricate.items.map(fabitem => 
             <div className="p-2 d-inline-block" role="button" style={{height: "3.5rem"}}>
-                <HoverImageElement item={getItemByIdentifier(itemname)} optimalSize={3.5} />
+                <PossibleItem identifier={fabitem.identifier ?? fabitem.tag} optimalSize={3.5} />
             </div>)}
         </Card>
     )
@@ -208,7 +216,7 @@ function Attack(props) {
             {attack.afflictions?.length ? <div className="col">
                 <h5 className="mt-2">Afflictions:</h5>
                 <div className="col row">
-                    <AfflictionInfos afflictions={attack.afflictions} />
+                    <AfflictionInfos afflictions={attack.afflictions} instant={true} />
                 </div>
             </div> : null}
 
@@ -217,36 +225,6 @@ function Attack(props) {
                 <StatusEffects statuseffects={attack.statuseffects} />
             </div> : null}
         </div>
-    )
-}
-
-function MeleeWeaponCard(props) {
-    const { item } = props;
-    const { meleeweapon } = item;
-
-    return (
-        <Card title="Melee Weapon">
-            {meleeweapon.reload ? <div className="card-text">
-                <span className="text-muted mr-1">Swing time:</span>
-                <span>{meleeweapon.reload}s</span>
-            </div> : null}
-            {meleeweapon.allowhitmultiple ? <div className="card-text">
-                <span className="text-muted mr-1">Multiple Hits:</span>
-                <span>{meleeweapon.allowhitmultiple ? "True" : "False"}</span>
-            </div> : null}
-            {meleeweapon.requiredskill ? <div className="card-text">
-                <span className="text-muted mr-1">Skill:</span>
-                <span className="text-info mr-1">{meleeweapon.requiredskill.identifier}</span>
-                <span>[{meleeweapon.requiredskill.level}]</span>
-            </div> : null}
-            <div className="card-text">
-                {meleeweapon.attack ? <Attack attack={meleeweapon.attack} /> : null}
-                {meleeweapon.statuseffects?.length ? <div className="col">
-                    <h5 className="mt-2">Item Status Effects:</h5>
-                    <StatusEffects statuseffects={meleeweapon.statuseffects} />
-                </div> : null}
-            </div>
-        </Card>
     )
 }
 
@@ -260,10 +238,12 @@ function HoldableCard(props) {
                 <span className="text-muted mr-1">Swing time:</span>
                 <span>{holdable.reload}s</span>
             </div> : null}
-            {holdable.requiredskill ? <div className="card-text">
-                <span className="text-muted mr-1">Skill:</span>
-                <span className="text-info mr-1">{holdable.requiredskill.identifier}</span>
-                <span>[{holdable.requiredskill.level}]</span>
+            {holdable.characterusable ? <div className="card-text">
+                <span className="text-muted mr-1">Character Usable:</span>
+                <span>{holdable.characterusable}</span>
+            </div> : null}
+            {holdable.requiredskills?.length ? <div className="card-text">
+                
             </div> : null}
             <div className="card-text">
                 {holdable.statuseffects?.length ? <div className="col">
@@ -319,8 +299,161 @@ function AiTargetCard(props) {
     </Card>
 }
 
+function Skill(props) {
+    const { skill } = props;
+    
+    return <div className="col">
+        <span className="text-info mr-1">{skill.identifier}</span>
+        <span>[{skill.level}]</span>
+    </div>
+}
+
+function Skills(props) {
+    const { skills } = props;
+
+    return skills.map(skill => <Skill skill={skill} />)
+}
+
+function ProjectileCard(props) {
+    const { item } = props;
+    const { projectile } = item;
+
+    return (
+        <Card title="Projectile">
+            <div className="card-text">
+                {projectile.hitscan ? <span className="badge badge-pill badge-primary">Hitscan</span> : null}
+                {projectile.hitscancount ? <span className="badge badge-pill badge-primary">x{projectile.hitscancount}</span> : null}
+                {projectile.removeonhit ? <span className="badge badge-pill badge-primary">Remove on hit</span> : null}
+                {projectile.characterusable.toLowerCase() == "false" ? <span className="badge badge-pill badge-primary">Not Character Usable</span> : null}
+            </div>
+            <div className="card-text">
+                {projectile.maxtargetstohit ? [
+                    <span className="text-muted mr-1">Max targets to hit:</span>,
+                    <span>{projectile.maxtargetstohit}</span>
+                ] : null}
+                {projectile.spread ? [
+                    <span className="text-muted mr-1">Spread:</span>,
+                    <span>{projectile.spread}&deg;</span>
+                ] : null}
+                {projectile.staticspread ? [
+                    <span className="text-muted mr-1">Static spread:</span>,
+                    <span>{projectile.staticspread}&deg;</span>
+                ] : null}
+            </div>
+            <div className="card-text">
+                {projectile.attack ? <Attack attack={projectile.attack} /> : null}
+                {projectile.statuseffects?.length ? <div className="col">
+                    <h5 className="mt-2">Item Status Effects:</h5>
+                    <StatusEffects statuseffects={projectile.statuseffects} />
+                </div> : null}
+            </div>
+        </Card>
+    )
+}
+
+function ThrowableCard(props) {
+    const { item } = props;
+    const { throwable } = item;
+
+    return (
+        <Card title="Throwable">
+            <div className="card-text">
+                {throwable.characterusable?.toLowerCase() == "false" ? <span className="badge badge-pill badge-primary">Not Character Usable</span> : null}
+            </div>
+            <div className="card-text">
+                {throwable.throwforce ? [
+                    <span className="text-muted mr-1">Throw force:</span>,
+                    <span>{throwable.throwforce}</span>
+                ] : null}
+            </div>
+            <div className="card-text">
+                {throwable.attack ? <Attack attack={throwable.attack} /> : null}
+                {throwable.statuseffects?.length ? <div className="col">
+                    <h5 className="mt-2">Item Status Effects:</h5>
+                    <StatusEffects statuseffects={throwable.statuseffects} />
+                </div> : null}
+            </div>
+        </Card>
+    )
+}
+
+function MeleeWeaponCard(props) {
+    const { item } = props;
+    const { meleeweapon } = item;
+
+    return (
+        <Card title="Melee Weapon">
+            {meleeweapon.reload ? <div className="card-text">
+                <span className="text-muted mr-1">Swing time:</span>
+                <span>{meleeweapon.reload}s</span>
+            </div> : null}
+            {meleeweapon.allowhitmultiple ? <div className="card-text">
+                <span className="text-muted mr-1">Multiple Hits:</span>
+                <span>{meleeweapon.allowhitmultiple ? "True" : "False"}</span>
+            </div> : null}
+            {meleeweapon.requiredskills?.length ? <div className="card-text">
+                <h5>Required Skill{meleeweapon.requiredskills.length > 1 ? "s" : ""}:</h5>
+                <Skills skills={meleeweapon.requiredskills} />
+            </div> : null}
+            <div className="card-text">
+                {meleeweapon.attack ? <Attack attack={meleeweapon.attack} /> : null}
+                {meleeweapon.statuseffects?.length ? <div className="col">
+                    <h5 className="mt-2">Item Status Effects:</h5>
+                    <StatusEffects statuseffects={meleeweapon.statuseffects} />
+                </div> : null}
+            </div>
+        </Card>
+    )
+}
+
+function RangedWeaponCard(props) {
+    const { item } = props;
+    const { rangedweapon } = item;
+
+    return (
+        <Card title="Ranged Weapon">
+            {rangedweapon.reload ? <div className="card-text">
+                <span className="text-muted mr-1">Reload:</span>
+                <span>{rangedweapon.reload}s</span>
+            </div> : null}
+            {rangedweapon.spread ? <div className="card-text">
+                <span className="text-muted mr-1">Spread:</span>
+                <span>{rangedweapon.spread}&deg;</span>
+            </div> : null}
+            {rangedweapon.unskilledspread ? <div className="card-text">
+                <span className="text-muted mr-1">Unskilled Spread:</span>
+                <span>{rangedweapon.unskilledspread}&deg;</span>
+            </div> : null}
+            {rangedweapon.requiredskills?.length ? <div className="card-text">
+                <h5>Required Skill{rangedweapon.requiredskills.length > 1 ? "s" : ""}:</h5>
+                <Skills skills={rangedweapon.requiredskills} />
+            </div> : null}
+            <div className="card-text">
+                {rangedweapon.statuseffects?.length ? <div className="col">
+                    <h5 className="mt-2">Status Effects:</h5>
+                    <StatusEffects statuseffects={rangedweapon.statuseffects} />
+                </div> : null}
+            </div>
+        </Card>
+    )
+}
+
+function ImportantItemCards(props) {
+    const { item } = props;
+
+    const cards = [];
+
+    if(item.meleeweapon) cards.push(<MeleeWeaponCard item={item} />);
+    if(item.rangedweapon) cards.push(<RangedWeaponCard item={item} />);
+    if(item.holdable) cards.push(<HoldableCard item={item} />);
+    if(item.projectile) cards.push(<ProjectileCard item={item} />);
+    if(item.throwable) cards.push(<ThrowableCard item={item} />);
+
+    return cards;
+}
+
 function ItemCards(props) {
-    const item = props.item;
+    const { item } = props;
     
     const cards = [];
     if(item.price) cards.push(<PriceCard item={item} />);
@@ -329,6 +462,7 @@ function ItemCards(props) {
     if(item.fabricate) cards.push(<FabricateCard item={item} />);
     if(item.container) cards.push(<ContainerCard item={item} />);
 
+    // find other items that make or are created by this item
     const usedByItemList = [];
     const madeByItemList = [];
 
@@ -336,7 +470,7 @@ function ItemCards(props) {
         if(otherItem.deconstruct?.items?.includes(item.identifier))
             madeByItemList.push(otherItem);
         
-        if(otherItem.fabricate?.items?.includes(item.identifier))
+        if(otherItem.fabricate?.items?.find(otherItem => otherItem.identifier == item.identifier || otherItem.tag == item.identifier))
             usedByItemList.push(otherItem);
     }
 
@@ -355,10 +489,6 @@ function ItemCards(props) {
             </div>
         </Card>
     )
-    
-    // longest cards should be at the bottom
-    if(item.holdable) cards.push(<HoldableCard item={item} />);
-    if(item.meleeweapon) cards.push(<MeleeWeaponCard item={item} />);
 
     return cards;
 }
@@ -371,6 +501,9 @@ function ItemPage(props) {
         <Page>
             <ItemHeader item={item} />
             <hr className="border-primary" style={{width: "calc(100% - 2rem)"}} />
+            <div id="card-deck" className="row col-12 row-cols-xl-3 row-cols-lg-2 row-cols-1">
+                <ImportantItemCards item={item} />
+            </div>
             <div id="card-deck" className="row col-12 row-cols-xl-3 row-cols-lg-2 row-cols-1">
                 <ItemCards item={item} />
             </div>

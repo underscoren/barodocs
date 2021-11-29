@@ -29,6 +29,53 @@ class Prefab {
     }
 }
 
+class RelatedItems {
+    type;
+    identifiers = [];
+    excludeIdentifiers = [];
+    
+    excludebroken;
+    allowvariants;
+    optional;
+    targetslot;
+
+    constructor(XMLelement) {
+        const possibleAttributes = ["type", "excludebroken", "allowvariants", "optional", "targetslot"];
+        for (const possibleAttribute of possibleAttributes)
+            this[possibleAttribute] = getCaseInsensetiveKey(XMLelement.attributes, possibleAttribute);
+        
+        for (const attributeName of Object.keys(XMLelement.attributes)) {
+            const attributeValue = XMLelement.attributes[attributeName];
+            
+            switch (attributeName.toLowerCase()) {
+                case "item":
+                case "items":
+                case "identifier":
+                case "identifiers":
+                case "tag":
+                case "tags":
+                    this.identifiers = attributeValue.toLowerCase().split(",");
+                    break;
+                case "excludeditem":
+                case "excludeditems":
+                case "excludedidentifier":
+                case "excludedidentifiers":
+                case "excludedtag":
+                case "excludedtags":
+                    this.excludeIdentifiers = attributeValue.toLowerCase().split(",");
+                    break;
+            }
+        }
+
+        if (!this.type) {
+            for (const childElement of XMLelement.children) {
+                if (childElement.toLowerCase() == "containable")
+                    this.type = "contained";
+            }
+        }
+    }
+}
+
 class AiTarget {
     sightrange;
     minsightrange;
@@ -355,6 +402,7 @@ class CroppedImage {
 
 module.exports = {
     Prefab,
+    RelatedItems,
     AiTarget,
     Attack,
     Explosion,

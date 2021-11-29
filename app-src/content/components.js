@@ -13,6 +13,41 @@ function ItemName(props) {
     )
 }
 
+function PossibleItem(props) {
+    const { identifier, optimalSize } = props;
+
+    const item = getItemByIdentifier(identifier);
+    
+    return item ? <HoverImageElement className="mr-2" item={item} optimalSize={optimalSize} /> : <span className="badge badge-pill badge-primary">{identifier}</span>
+}
+
+function RelatedItems(props) {
+    const { relatedItems } = props;
+
+    return [
+        <div className="col">
+            {relatedItems.type ? <span className="badge badge-pill badge-primary">{relatedItems.type}</span> : null}
+            {relatedItems.excludebroken == "false" ? <span className="badge badge-pill badge-secondary">Allow Broken</span> : null}
+            {relatedItems.allowvariants == "false" ? <span className="badge badge-pill badge-secondary">No Variants</span> : null}
+            {relatedItems.targetslot ? <span className="badge badge-pill badge-secondary">Slot: {relatedItems.targetslot}</span> : null}
+        </div>,
+        <div className="col">
+            {relatedItems.identifiers?.length ? [
+                <h5>Required Items:</h5>,
+                <div className="col">
+                    {relatedItems.identifiers.map(identifier => <PossibleItem identifier={identifier} />)}
+                </div>
+            ] : null}
+            {relatedItems.excludedIdentifiers?.length ? [
+                <h5>Excluded Items:</h5>,
+                <div className="col">
+                    {relatedItems.excludedIdentifiers.map(identifier => <PossibleItem identifier={identifier} />)}
+                </div>
+            ] : null}
+        </div>
+    ]
+}
+
 // returns a list of pills with tag names
 function TagList(props) {
     const { tags } = props;
@@ -147,7 +182,7 @@ function Explosion(props) {
         <div className="col">
             {explosion.range ? <div className="col">
                 <span className="text-muted mr-1">Range:</span>
-                <span>{explosion.range}m</span>
+                <span>{explosion.range/100}m</span>
             </div> : null}
             {explosion.force ? <div className="col">
                 <span className="text-muted mr-1">Force:</span>
@@ -246,11 +281,11 @@ function AfflictionInfo(props) {
 }
 
 function AfflictionInfos(props) {
-    const { afflictions, reduceafflictions } = props;
+    const { afflictions, reduceafflictions, instant } = props;
 
     return [].concat(
-        afflictions?.length ? afflictions.map(affliction => <AfflictionInfo affliction={affliction} />) : [], 
-        reduceafflictions?.length ? reduceafflictions.map(affliction => <ReduceAfflictionInfo affliction={affliction} />) : []
+        afflictions?.length ? afflictions.map(affliction => <AfflictionInfo affliction={affliction} instant={instant} />) : [], 
+        reduceafflictions?.length ? reduceafflictions.map(affliction => <ReduceAfflictionInfo affliction={affliction} instant={instant} />) : []
     );
 }
 
@@ -352,4 +387,6 @@ export {
     AfflictionInfos,
     Conditional,
     Conditionals,
+    RelatedItems,
+    PossibleItem,
 }

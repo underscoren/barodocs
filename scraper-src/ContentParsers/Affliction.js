@@ -84,10 +84,10 @@ class Affliction extends Prefab {
             switch(childNode.name.toLowerCase()) {
                 case "icon":
                     this.icon = new CroppedImage(childNode, baroPath, sourceFile);
-                break;
+                    break;
                 case "effect":
                     this.effects.push(new AfflictionEffect(childNode));
-                break;
+                    break;
             }
         }
     }
