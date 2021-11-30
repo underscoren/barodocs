@@ -35,13 +35,13 @@ function RelatedItems(props) {
             {relatedItems.identifiers?.length ? [
                 <h5>Required Items:</h5>,
                 <div className="col">
-                    {relatedItems.identifiers.map(identifier => <PossibleItem identifier={identifier} />)}
+                    {relatedItems.identifiers.map(identifier => <PossibleItem key={identifier} identifier={identifier} />)}
                 </div>
             ] : null}
             {relatedItems.excludedIdentifiers?.length ? [
                 <h5>Excluded Items:</h5>,
                 <div className="col">
-                    {relatedItems.excludedIdentifiers.map(identifier => <PossibleItem identifier={identifier} />)}
+                    {relatedItems.excludedIdentifiers.map(identifier => <PossibleItem key={identifier} identifier={identifier} />)}
                 </div>
             ] : null}
         </div>
@@ -52,7 +52,7 @@ function RelatedItems(props) {
 function TagList(props) {
     const { tags } = props;
 
-    return tags.map(tag => <span className="badge badge-pill badge-primary">{tag}</span>);
+    return tags.map(tag => <span key={tag} className="badge badge-pill badge-primary">{tag}</span>);
 }
 
 function Card(props) {
@@ -105,7 +105,8 @@ function ImageElement(props) {
         const style = {
             width: optimalWidth+"rem",
             height: optimalHeight+"rem",
-            background: `url(./${img.file.replaceAll("\\","/")}) no-repeat`,
+            backgroundImage: `url(./${img.file.replaceAll("\\","/")})`,
+            backgroundRepeat: "no-repeat",
             backgroundPosition: (-offsetxRel)+"rem "+(-offsetyRel)+"rem",
             backgroundSize: imageWidthRel+"rem "+imageHeightRel+"rem",
             margin: ((optimalSize - optimalHeight)/2)+"rem "+((optimalSize - optimalWidth)/2)+"rem",
@@ -134,9 +135,6 @@ function ImageElement(props) {
 function DisplayImageElement(props) {
     const { item, optimalSize, color } = props;
 
-    if(item.inventoryIcon) return <ImageElement item={item} optimalSize={optimalSize} type="inventoryIcon" color={color} />;
-    if(item.sprite) return <ImageElement item={item} optimalSize={optimalSize} type="sprite" color={color} />;
-    if(item.icon) return <ImageElement item={item} optimalSize={optimalSize} type="icon" color={color} />
     if(item.variantof) {
         const variantItem = getItemByIdentifier(item.variantof);
         if(!variantItem)
@@ -144,6 +142,10 @@ function DisplayImageElement(props) {
         
         return <DisplayImageElement item={variantItem} optimalSize={optimalSize} color={item.inventoryIconColor ?? item.spriteColor} />
     }
+
+    if(item.inventoryIcon) return <ImageElement item={item} optimalSize={optimalSize} type="inventoryIcon" color={color} />;
+    if(item.sprite) return <ImageElement item={item} optimalSize={optimalSize} type="sprite" color={color} />;
+    if(item.icon) return <ImageElement item={item} optimalSize={optimalSize} type="icon" color={color} />
     
     console.warn(`${item.identifier} has no displayable image`);
     return null;
@@ -172,7 +174,7 @@ function HoverImageElement(props) {
 function HoverItemList(props) {
     const { items, optimalSize } = props;
 
-    return items.map(item => <HoverImageElement item={item} optimalSize={optimalSize} />);
+    return items.map(item => <HoverImageElement key={item.identifier} item={item} optimalSize={optimalSize} />);
 }
 
 function Explosion(props) {
@@ -212,49 +214,34 @@ function Explosion(props) {
     )
 }
 
-/**
- * A function that attempts to predict if a reduceAfflictionInfo afflictionInfo object will match to an affliction by identifier or type
- * @param afflictionInfo
- * @returns Object with bool isIdentifier and a result which is an affliction object if isIdentifier == true or a type string if isIdentifier == false
- */
-function predictAfflictionInfo(afflictionInfo) {
-    // when reducing an affliction, the game goes through every affliction and does a string comparison of both the identifier and type
-    // so an identifier can be a type and a type can be an identifier (though usually they are the correct one)
-    
-    // assume it's an identifer if it's called an identifier
-    if(afflictionInfo.identifier) {
-        const afflictionObject = getItemByIdentifier(afflictionInfo.identifier);
-
-        if (!afflictionObject) {
-            // it turns out it wasn't an identifier, so instead assume the identifier is actually a type
-            return {isIdentifier: false, result: afflictionInfo.identifier};
-        } else {
-            return {isIdentifier: true, result: afflictionObject};
-        }
-    }
-    
-    // assume all types are actually types, because it's impossible to know otherwise (a type can have the same name as an identifier, e.g. burn)
-    if (afflictionInfo.type) {
-        return {isIdentifier: false, result: afflictionInfo.type}
-    }
-
-    // isn't barotrauma great
-}
-
 function ReduceAfflictionInfo(props) {
     const { affliction, instant } = props;
 
-    const { isIdentifier, result } = predictAfflictionInfo(affliction);
+    let isIdentifier;
+    let afflictionObject;
+
+    if(affliction.identifier) {
+        afflictionObject = getItemByIdentifier(affliction.identifier);
+
+        if (!afflictionObject)
+            isIdentifier = false;
+        else
+            isIdentifier = true;
+    }
+    
+    // assume all types are actually types, because it's impossible to know otherwise (a type can have the same name as an identifier, e.g. burn)
+    if (affliction.type)
+        isIdentifier = false;
 
     return (
         <div className="col-lg-6 col-12">
-            {isIdentifier == true ? <HoverImageElement className="align-middle mr-3" item={result} optimalSize={2.5} /> : null}
+            {isIdentifier == true ? <HoverImageElement className="align-middle mr-3" item={afflictionObject} optimalSize={2.5} /> : null}
             {isIdentifier == false ? <span className="mr-2">
-                <TagList tags={result.split(",")} />
+                <TagList tags={affliction.type.split(",")} />
             </span> : null}
             {affliction.strength ? <span className="mb-2 align-middle d-inline-block mr-3">
                 <span className="text-muted mr-1">Strength:</span>
-                <span className="text-danger">-{affliction.strength}{instant == "true" ? "" : "/s"}</span>
+                <span className="text-danger">-{affliction.strength}{instant ? "" : "/s"}</span>
             </span> : null}
         </div>
     )
@@ -269,7 +256,7 @@ function AfflictionInfo(props) {
             <div className="d-inline-block">
                 {affliction.strength ? <div className="d-block">
                     <span className="text-muted mr-1">Strength:</span>
-                    <span className="text-success">{affliction.strength}{instant == "true" ? "" : "/s"}</span>
+                    <span className="text-success">{affliction.strength}{instant ? "" : "/s"}</span>
                 </div> : null}
                 {affliction.probability ? <div className="d-inline-block">
                     <span className="text-muted mr-1">Chance:</span>
@@ -283,9 +270,10 @@ function AfflictionInfo(props) {
 function AfflictionInfos(props) {
     const { afflictions, reduceafflictions, instant } = props;
 
+    let i = 0;
     return [].concat(
-        afflictions?.length ? afflictions.map(affliction => <AfflictionInfo affliction={affliction} instant={instant} />) : [], 
-        reduceafflictions?.length ? reduceafflictions.map(affliction => <ReduceAfflictionInfo affliction={affliction} instant={instant} />) : []
+        afflictions?.length ? afflictions.map(affliction => <AfflictionInfo key={i++} affliction={affliction} instant={instant} />) : [], 
+        reduceafflictions?.length ? reduceafflictions.map(affliction => <ReduceAfflictionInfo key={i++} affliction={affliction} instant={instant} />) : []
     );
 }
 
@@ -303,7 +291,7 @@ function Conditional(props) {
 function Conditionals(props) {
     const { conditionals } = props;
 
-    return conditionals.map(condition => <Conditional condition={condition} />);
+    return conditionals.map(condition => <Conditional key={condition.property} condition={condition} />);
 }
 
 function StatusEffect(props) {
@@ -342,7 +330,7 @@ function StatusEffect(props) {
             {statuseffect.afflictions?.length || statuseffect.reduceafflictions?.length  ? <div className="col">
                 <h5 className="mt-2">Afflictions:</h5>
                 <div className="col row">
-                    <AfflictionInfos afflictions={statuseffect.afflictions} reduceafflictions={statuseffect.reduceafflictions} instant={statuseffect.disabledeltatime} />
+                    <AfflictionInfos afflictions={statuseffect.afflictions} reduceafflictions={statuseffect.reduceafflictions} instant={statuseffect.disabledeltatime?.toLowerCase() == "true"} />
                 </div>
             </div> : null}
             {statuseffect.explosions?.length ? <div className="col">
@@ -365,7 +353,7 @@ function StatusEffects(props) {
     const { statuseffects } = props;
 
     return statuseffects
-        .flatMap(statuseffect => [<StatusEffect statuseffect={statuseffect} />, <hr className="my-2" />])
+        .flatMap((statuseffect, i) => [<StatusEffect key={i*2} statuseffect={statuseffect} />, <hr key={i*2+1} className="my-2" />])
         .slice(0, -1);
 }
 
@@ -382,7 +370,6 @@ export {
     StatusEffects,
     Explosion,
     AfflictionInfo,
-    predictAfflictionInfo,
     ReduceAfflictionInfo,
     AfflictionInfos,
     Conditional,

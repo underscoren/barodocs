@@ -6,42 +6,43 @@ import { TagList, DisplayImageElement } from "./components";
 
 // gets the contents of the hover element from an item
 function HoverContentsItem(props) {
-    const item = props.item
+    const { item } = props;
 
-    return [
-    <div className='col mt-2'>
-        <span className='h5 text-primary'>{item.name}</span>
-        <span className='h6 text-secondary ml-1'>{item.identifier}</span>
-    </div>,
-    <div className='col my-2'>
-        {item.category ? <span className='h6 text-info mr-1'>{item.category}</span> : null }
-        {(item.category && item.tags) ? <span className='h6 text-secondary mr-1'>|</span> : null}
-        {item.tags ? <TagList tags={item.tags} /> : null}
-    </div>,
-    <div className="mx-auto d-block" style={{width: "5rem"}}>
-        <DisplayImageElement item={item} optimalSize={5} />
-    </div>]
+    return <>
+        <div className="col mt-2">
+            <span className="h5 text-primary mr-1">{item.name}</span>
+            <span className="h6 text-secondary">{item.identifier}</span>
+        </div>
+        <div className="col my-2">
+            {item.category ? <span className="h6 text-info mr-1">{item.category}</span> : null }
+            {(item.category && item.tags) ? <span className="h6 text-secondary mr-1">|</span> : null}
+            {item.tags ? <TagList tags={item.tags} /> : null}
+        </div>
+        <div className="mx-auto d-block" style={{width: "5rem"}}>
+            <DisplayImageElement item={item} optimalSize={5} />
+        </div>
+    </>
 }
 
 function HoverContentsAffliction(props) {
-    const affliction = props.affliction;
+    const { affliction } = props;
 
-    return [
-    <div className='col mt-2'>
-        <span className='h5 text-primary'>{affliction.name}</span>
-        <span className='h6 text-secondary ml-1'>{affliction.identifier}</span>
-    </div>,
-    <div className='col my-2'>
-        <span className='h6 text-info mr-1'>{affliction.afflictiontype}</span>
-    </div>,
-    <div className="mx-auto d-block" style={{width: "5rem"}}>
-        <DisplayImageElement item={affliction} optimalSize={5} />
-    </div>
-    ]
+    return <>
+        <div className="col mt-2">
+            <span className="h5 text-primary">{affliction.name}</span>
+            <span className="h6 text-secondary ml-1">{affliction.identifier}</span>
+        </div>
+        <div className="col my-2">
+            <span className="h6 text-info mr-1">{affliction.afflictiontype}</span>
+        </div>
+        <div className="mx-auto d-block" style={{width: "5rem"}}>
+            <DisplayImageElement item={affliction} optimalSize={5} />
+        </div>
+    </>
 }
 
 function HoverContents(props) {
-    const item = props.item;
+    const { item } = props;
 
     switch(item.type) {
         case "item":

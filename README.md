@@ -34,5 +34,4 @@ Some of the game's xml files have syntax errors. The game's xml parser doesn't s
  - Improve search functionality
  - Improve mobile browsing experience
  - Replace all usage of jquery and replace bootstrap with bootstrap-react
- - Fix weird bug where the icon image sometimes bugs out
  - Use a better XML parser
