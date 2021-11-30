@@ -8,7 +8,7 @@ import { Scatter } from "react-chartjs-2";
 function AfflictionHeader(props) {
     const affliction = props.affliction;
 
-    return [
+    return <>
     <div className="col-lg-8 col-sm-12 d-inline-block">
         <ItemName item={affliction} />
         <div className="col">
@@ -16,22 +16,22 @@ function AfflictionHeader(props) {
             <span className="text-info">{affliction.afflictiontype}</span>
         </div>
         <div className="col">
-            {affliction.limbspecific ? [
-                <span className="text-muted mr-1">Limb Specific:</span>,
+            {affliction.limbspecific ? <>
+                <span className="text-muted mr-1">Limb Specific:</span>
                 <span className="mr-1">{affliction.limbspecific}</span>
-            ] : null}
-            {affliction.indicatorlimb ? [
-                <span className="text-muted mr-1">Indicator Limb:</span>,
+            </> : null}
+            {affliction.indicatorlimb ? <>
+                <span className="text-muted mr-1">Indicator Limb:</span>
                 <span>{affliction.indicatorlimb}</span>
-            ] : null}
-            {affliction.showiconthreshhold ? [
-                <span className="text-muted mr-1">Icon visible at:</span>,
+            </> : null}
+            {affliction.showiconthreshhold ? <>
+                <span className="text-muted mr-1">Icon visible at:</span>
                 <span className="mr-1">{affliction.showiconthreshhold}</span>
-            ] : null}
-            {affliction.showinhealthscannerthreshold ? [
-                <span className="text-muted mr-1">Health scanner visible at:</span>,
+            </> : null}
+            {affliction.showinhealthscannerthreshold ? <>
+                <span className="text-muted mr-1">Health scanner visible at:</span>
                 <span className="mr-1">{affliction.showinhealthscannerthreshold}</span>
-            ] : null}
+            </> : null}
         </div>
         <div className="col">
             <span className="text-muted mr-1">Maximum Strength:</span>
@@ -46,13 +46,13 @@ function AfflictionHeader(props) {
             <span className="text-success">{affliction.sourceFile}</span>
         </div>
         <p className="lead col-12 mt-4">{affliction.description}</p>
-    </div>,
+    </div>
     <div className="col-lg-4 col-sm-12 d-inline-block">
         <div className="col mt-sm-3 mt-md-0">
             <ImageElement item={affliction} optimalSize={8} type="icon" />
         </div>
     </div>
-    ]
+    </>
 }
 
 function AfflictionStrengthChart(props) {
@@ -304,7 +304,7 @@ function AfflictionEffectCard(props) {
                 <span className="text-muted">*Percent of Max Health</span>
             </div> : null}
 
-            {minmaxlist.map(name => (effect["min"+name] && effect["max"+name]) ? <div className="col">
+            {minmaxlist.map(name => (effect["min"+name] && effect["max"+name]) ? <div key={name} className="col">
                 <Range name={name} min={effect["min"+name]} max={effect["max"+name]} percentage={true} />
             </div> : null)}
 
@@ -320,7 +320,7 @@ function AfflictionEffectCard(props) {
 
             {effect.statvalues?.length ? <div className="col">
                 <h5 className="mt-2">Stat Values:</h5>
-                {effect.statvalues.map(statvalue => <StatValue statvalue={statvalue} />)}
+                {effect.statvalues.map(statvalue => <StatValue key={statvalue.stattype} statvalue={statvalue} />)}
             </div> : null}
         </Card>
     )
@@ -335,24 +335,26 @@ function AfflictionPage(props) {
     const removedBy = new Set();
 
     // searches through all status effects for any afflictions that cause or remove this affliction
-    // returns null or an object with two bool properties: isCausedBy and isRemovedBy
+    // returns an object with two bool properties: isCausedBy and isRemovedBy
     const searchAllStatusEffects = possibleObject => {
         if(!possibleObject?.statuseffects?.length) return;
+
+        let isCausedBy = false;
+        let isRemovedBy = false;
         for (const statuseffect of possibleObject.statuseffects) {
-            let isCausedBy = statuseffect.afflictions?.find(otherAffliction =>
-                   otherAffliction.identifier     == affliction.identifier 
-                || otherAffliction.afflictiontype == affliction.afflictiontype
-            );
+            isCausedBy ||= !!(statuseffect.afflictions?.find(otherAffliction =>
+                   otherAffliction.identifier == affliction.identifier 
+                || otherAffliction.type       == affliction.afflictiontype
+            ));
 
-            let isRemovedBy = statuseffect.reduceafflictions?.find(otherAffliction =>
-                   otherAffliction.identifier     == affliction.identifier 
-                || otherAffliction.afflictiontype == affliction.afflictiontype 
-                || otherAffliction.identifier     == affliction.afflictiontype
-            );
-
-            if (isCausedBy || isRemovedBy)
-                return {isCausedBy, isRemovedBy};
+            isRemovedBy ||= !!(statuseffect.reduceafflictions?.find(otherAffliction =>
+                   otherAffliction.identifier  == affliction.identifier 
+                || otherAffliction.type        == affliction.afflictiontype 
+                || otherAffliction.identifier  == affliction.afflictiontype
+            ));
         }
+
+        return {isCausedBy, isRemovedBy};
     }
 
     for (const item of Data.items) {
@@ -378,9 +380,8 @@ function AfflictionPage(props) {
                 item.projectile?.attack,
             ]) {
                 possibleObject?.afflictions?.forEach(otherAffliction => {
-                    if (otherAffliction.identifier == affliction.identifier || otherAffliction.afflictiontype == affliction.afflictiontype) {
-                        causedBy.add(item)
-                        return;
+                    if (otherAffliction.identifier == affliction.identifier || otherAffliction.type == affliction.afflictiontype) {
+                        causedBy.add(item);
                     }
                 });
             }
@@ -408,7 +409,7 @@ function AfflictionPage(props) {
                 <AfflictionEffectChart affliction={affliction} />
             </div> : null}
             <div id="card-deck" className="row col-12 row-cols-xl-3 row-cols-lg-2 row-cols-1">
-                {affliction.effects?.map(effect => <AfflictionEffectCard effect={effect} /> )}
+                {affliction.effects?.map((effect, i) => <AfflictionEffectCard key={i} effect={effect} /> )}
                 {causedBy.size ? <Card title="Caused by">
                     <div>
                         <HoverItemList items={Array.from(causedBy)} optimalSize={3.5} />

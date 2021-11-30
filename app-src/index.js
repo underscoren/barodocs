@@ -8,7 +8,6 @@ import * as JsSearch from 'js-search';
 import Data from "./data";
 import { MainSearchbar, SidebarSearchbar } from "./search";
 import { getItemByIdentifier, renderPage } from "./util";
-import { Page } from "./page";
 
 // setup event handlers for dismissing the sidebar
 $("#sidebar-dismiss, .overlay").on("click", () => {

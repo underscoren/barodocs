@@ -96,14 +96,14 @@ class MainSearchbar extends React.Component {
     }
 
     render() {
-        return [
-            <input placeholder="Search" className="w-100 mt-3 p-2" type="text" id="searchbar" onChange={this.handleInput} />,
+        return <>
+            <input placeholder="Search" className="w-100 mt-3 p-2" type="text" id="searchbar" onChange={this.handleInput} />
             <ul id="search-results" className="bg-light" style={this.state.results.length ? null : {display: "none"}} >
                 {this.state.results.map(result => 
-                    <SearchResult result={result} displayImage={true} />
+                    <SearchResult key={result.identifier+result.name} result={result} displayImage={true} />
                 )}
             </ul>
-        ]
+        </>
     }
 }
 
@@ -124,16 +124,16 @@ class SidebarSearchbar extends React.Component {
     }
 
     render() {
-        return [
+        return <>
             <div className="d-flex border-bottom mt-4">
                 <input placeholder="Search" type="text" className="m-2 p-1 d-flex flex-fill" id="sidebar-searchbar" onChange={this.handleInput} />
-            </div>,
+            </div>
             <ul id="sidebar-results" className="w-100 list-unstyled" results={this.state.results} >
                 {this.state.results.map(result => 
-                    <SearchResult result={result} key={result.identifier} onClick={() => pageEventHandler(result)} />
+                    <SearchResult key={result.identifier+result.name} result={result} onClick={() => pageEventHandler(result)} />
                 )}
             </ul>
-        ]
+        </>
     }
 }
 

@@ -8,24 +8,24 @@ function ItemHeader(props) {
     const { item } = props;
     const variantItem = item.variantof ? getItemByIdentifier(item.variantof) : undefined;
 
-    return [
+    return <>
         <div className="col-lg-8 col-sm-12 d-inline-block">
             <ItemName item={item} />
             <div className="col">
-                {item.category ? [
-                    <span className="text-muted mr-1">Category:</span>,
+                {item.category ? <>
+                    <span className="text-muted mr-1">Category:</span>
                     <span className="text-info mr-1">{item.category}</span>
-                ] : null}
-                {item.tags ? [
-                    <span className="text-muted mr-1">Tags:</span>,
+                </> : null}
+                {item.tags ? <>
+                    <span className="text-muted mr-1">Tags:</span>
                     <TagList tags={item.tags}/>
-                ] : null}
-                {item.variantof ? [
-                    <span className="text-muted mr-1">Variant of:</span>,
+                </> : null}
+                {item.variantof ? <>
+                    <span className="text-muted mr-1">Variant of:</span>
                     <HoverElement item={variantItem} >
                         <span><u>{variantItem.name}</u></span>
                     </HoverElement>
-                ] : null}
+                </> : null}
             </div>
             {item.maxstacksize ? <div className="col">
                 <span className="text-muted mr-1">Stack size:</span>
@@ -40,14 +40,14 @@ function ItemHeader(props) {
                 <span className="text-success">{item.sourceFile}</span>
             </div>
             <p className="lead col-12 mt-4">{item.description}</p>
-        </div>,
+        </div>
         <div className="col-lg-4 col-sm-12 d-inline-block">
             <div className="col mt-sm-3 mt-md-0">
                     <ImageElement item={variantItem ?? item} optimalSize={8} type="sprite" color={item?.spriteColor} />
                     <ImageElement item={variantItem ?? item} optimalSize={8} type="inventoryIcon" color={item?.inventoryIconColor} />
             </div>
         </div>
-    ]
+    </>
 }
 
 function PriceCard(props) {
@@ -114,8 +114,8 @@ function DeconstructCard(props) {
                 {deconstruct.chooserandom ? <span className="badge badge-pill badge-primary mr-1">Random</span> : null}
                 {deconstruct.amount ? <span className="badge badge-pill badge-secondary mr-1">{deconstruct.amount}</span> : null}
             </div>
-            {deconstruct.items.map(itemname => 
-                <div className="p-2 d-inline-block" style={{height: "3.5rem"}}>
+            {deconstruct.items?.map((itemname, i) => 
+                <div key={i} className="p-2 d-inline-block" style={{height: "3.5rem"}}>
                     <HoverImageElement item={getItemByIdentifier(itemname)} optimalSize={3.5} />
                 </div>
             )}
@@ -146,8 +146,8 @@ function FabricateCard(props) {
             <div className="card-text">
                 {fabricate.requiresrecipe ? <span className="badge badge-pill badge-secondary mr-1">Requires Recipe</span> : null}
             </div>
-            {fabricate.items.map(fabitem => 
-            <div className="p-2 d-inline-block" role="button" style={{height: "3.5rem"}}>
+            {fabricate.items?.map((fabitem, i) => 
+            <div key={i} className="p-2 d-inline-block" role="button" style={{height: "3.5rem"}}>
                 <PossibleItem identifier={fabitem.identifier ?? fabitem.tag} optimalSize={3.5} />
             </div>)}
         </Card>
@@ -311,7 +311,7 @@ function Skill(props) {
 function Skills(props) {
     const { skills } = props;
 
-    return skills.map(skill => <Skill skill={skill} />)
+    return skills.map(skill => <Skill key={skill.identifier+skill.level} skill={skill} />)
 }
 
 function ProjectileCard(props) {
@@ -324,21 +324,21 @@ function ProjectileCard(props) {
                 {projectile.hitscan ? <span className="badge badge-pill badge-primary">Hitscan</span> : null}
                 {projectile.hitscancount ? <span className="badge badge-pill badge-primary">x{projectile.hitscancount}</span> : null}
                 {projectile.removeonhit ? <span className="badge badge-pill badge-primary">Remove on hit</span> : null}
-                {projectile.characterusable.toLowerCase() == "false" ? <span className="badge badge-pill badge-primary">Not Character Usable</span> : null}
+                {projectile.characterusable?.toLowerCase() == "false" ? <span className="badge badge-pill badge-primary">Not Character Usable</span> : null}
             </div>
             <div className="card-text">
-                {projectile.maxtargetstohit ? [
-                    <span className="text-muted mr-1">Max targets to hit:</span>,
+                {projectile.maxtargetstohit ? <>
+                    <span className="text-muted mr-1">Max targets to hit:</span>
                     <span>{projectile.maxtargetstohit}</span>
-                ] : null}
-                {projectile.spread ? [
-                    <span className="text-muted mr-1">Spread:</span>,
+                </> : null}
+                {projectile.spread ? <>
+                    <span className="text-muted mr-1">Spread:</span>
                     <span>{projectile.spread}&deg;</span>
-                ] : null}
-                {projectile.staticspread ? [
-                    <span className="text-muted mr-1">Static spread:</span>,
+                </> : null}
+                {projectile.staticspread ? <>
+                    <span className="text-muted mr-1">Static spread:</span>
                     <span>{projectile.staticspread}&deg;</span>
-                ] : null}
+                </> : null}
             </div>
             <div className="card-text">
                 {projectile.attack ? <Attack attack={projectile.attack} /> : null}
@@ -361,10 +361,10 @@ function ThrowableCard(props) {
                 {throwable.characterusable?.toLowerCase() == "false" ? <span className="badge badge-pill badge-primary">Not Character Usable</span> : null}
             </div>
             <div className="card-text">
-                {throwable.throwforce ? [
-                    <span className="text-muted mr-1">Throw force:</span>,
+                {throwable.throwforce ? <>
+                    <span className="text-muted mr-1">Throw force:</span>
                     <span>{throwable.throwforce}</span>
-                ] : null}
+                </> : null}
             </div>
             <div className="card-text">
                 {throwable.attack ? <Attack attack={throwable.attack} /> : null}
@@ -443,11 +443,11 @@ function ImportantItemCards(props) {
 
     const cards = [];
 
-    if(item.meleeweapon) cards.push(<MeleeWeaponCard item={item} />);
-    if(item.rangedweapon) cards.push(<RangedWeaponCard item={item} />);
-    if(item.holdable) cards.push(<HoldableCard item={item} />);
-    if(item.projectile) cards.push(<ProjectileCard item={item} />);
-    if(item.throwable) cards.push(<ThrowableCard item={item} />);
+    if(item.meleeweapon) cards.push(<MeleeWeaponCard item={item} key="MeleeWeaponCard" />);
+    if(item.rangedweapon) cards.push(<RangedWeaponCard item={item} key="RangedWeaponCard" />);
+    if(item.holdable) cards.push(<HoldableCard item={item} key="HoldableCard" />);
+    if(item.projectile) cards.push(<ProjectileCard item={item} key="ProjectileCard" />);
+    if(item.throwable) cards.push(<ThrowableCard item={item} key="ThrowableCard" />);
 
     return cards;
 }
@@ -456,11 +456,11 @@ function ItemCards(props) {
     const { item } = props;
     
     const cards = [];
-    if(item.price) cards.push(<PriceCard item={item} />);
-    if(item.aitarget) cards.push(<AiTargetCard item={item} />);
-    if(item.deconstruct) cards.push(<DeconstructCard item={item} />);
-    if(item.fabricate) cards.push(<FabricateCard item={item} />);
-    if(item.container) cards.push(<ContainerCard item={item} />);
+    if(item.price) cards.push(<PriceCard item={item} key="PriceCard" />);
+    if(item.aitarget) cards.push(<AiTargetCard item={item} key="AiTargetCard" />);
+    if(item.deconstruct) cards.push(<DeconstructCard item={item} key="DeconstructCard" />);
+    if(item.fabricate) cards.push(<FabricateCard item={item} key="FabricateCard" />);
+    if(item.container) cards.push(<ContainerCard item={item} key="ContainerCard" />);
 
     // find other items that make or are created by this item
     const usedByItemList = [];
@@ -475,7 +475,7 @@ function ItemCards(props) {
     }
 
     if(usedByItemList.length) cards.push(
-        <Card title="Used By">
+        <Card key="usedByItemList" title="Used By">
             <div>
                 <HoverItemList items={usedByItemList} optimalSize={3.5} />
             </div>
@@ -483,7 +483,7 @@ function ItemCards(props) {
     )
 
     if(madeByItemList.length) cards.push(
-        <Card title="Made By">
+        <Card key="madeByItemList" title="Made By">
             <div>
                 <HoverItemList items={madeByItemList} optimalSize={3.5} />
             </div>
