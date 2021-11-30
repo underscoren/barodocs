@@ -34,6 +34,35 @@ function getItemIfNeeded(possibleItemObject) {
     return possibleItemObject;
 }
 
+class PageErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {error: null, errorInfo: null};
+    }
+
+    componentDidCatch(error, errorInfo) {
+        this.setState({
+            error: error,
+            errorInfo: errorInfo
+        })
+    }
+
+    render() {
+        if(this.state.errorInfo) {
+            return <Page>
+                <p className="mt-5 display-4 text-danger text-center">Error</p>
+                <div className="col mr-4 mt-3">
+                    <p>Error while rendering page:</p>
+                    <p>{this.state.error.toString()}</p>
+                    <p>See console for more information</p>
+                </div>
+            </Page>
+        }
+
+        return this.props.children;
+    }
+}
+
 // returns the correct page content for different item types
 function PageContents(props) {
     const { item } = props;
@@ -51,9 +80,9 @@ function PageContents(props) {
 
     switch(item.type) {
         case "item":
-            return <ItemPage item={item} />
+            return <PageErrorBoundary><ItemPage item={item} /></PageErrorBoundary>;
         case "affliction":
-            return <AfflictionPage affliction={item} />;
+            return <PageErrorBoundary><AfflictionPage affliction={item} /></PageErrorBoundary>;
         default:
             console.log(item);
             console.error("Unknown item type",item.type);

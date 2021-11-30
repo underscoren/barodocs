@@ -53,19 +53,7 @@ Data.load().then(json => {
         $("#search").hide();
         $("#sidebar").show();
         const item = getItemByIdentifier(window.location.hash.slice(1));
-        try {
-            renderPage(item);
-        } catch (err) {
-            ReactDOM.render(<Page>
-                <p className="mt-5 display-4 text-danger text-center">Error</p>
-                <div className="col mr-4 mt-3">
-                    <p>Error while rendering page:</p>
-                    <p>{err.message}</p>
-                    <p>See console for more information</p>
-                </div>
-            </Page>, 
-            $("#page")[0]);
-        }
+        renderPage(item);
     }
 
     // if the url hash is set, automatically render the correct page
