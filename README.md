@@ -4,7 +4,7 @@ A documentation generator for the game [Barotrauma](https://barotraumagame.com/)
 
 The project is split in two: the scraper and the web app. The scraper generates a json file containing definitions for the web app, and the web app reads the definitions and generates html elements to display in the browser.
 
-Currently in very early stages of development, the majority of features are missing.
+Currently in early stages of development, the majority of features are missing.
 
 ## Setup
 
