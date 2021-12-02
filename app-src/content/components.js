@@ -305,11 +305,13 @@ function StatusEffect(props) {
                 {statuseffect.type ? <span className="badge badge-pill badge-primary mr-1">{statuseffect.type}</span> : null}
                 {statuseffect.target ? <span className="badge badge-pill badge-primary mr-1">{statuseffect.target}</span> : null}
                 {statuseffect.removeitem ? <span className="badge badge-pill badge-secondary mr-1">Remove Item</span> : null}
+                {statuseffect.useitem ? <span className="badge badge-pill badge-secondary mr-1">Use Item {statuseffect.useitem > 1 ? `x${statuseffect.useitem}` : ""}</span> : null}
                 {statuseffect.duration ? <span className="badge badge-pill badge-secondary mr-1">{statuseffect.duration}s</span> : null}
                 {statuseffect.delay ? <span className="badge badge-pill badge-secondary mr-1">Delay: {statuseffect.delay}s</span> : null}
                 {statuseffect.range ? <span className="badge badge-pill badge-secondary mr-1">Range: {statuseffect.range/100}m</span> : null}
                 {statuseffect.disabledeltatime ? <span className="badge badge-pill badge-secondary mr-1">Instant</span> : null}
                 {statuseffect.setvalue ? <span className="badge badge-pill badge-secondary mr-1">Set Value</span> : null}
+                {statuseffect.fire ? <span className="badge badge-pill badge-secondary mr-1">Fire{statuseffect.fire != "default" ? `: ${statuseffect.fire}` : ""}</span> : null}
             </div>
             {statuseffect.requireditems?.length ? <div className="col text-center">
                 <span>
