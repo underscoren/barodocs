@@ -27,7 +27,7 @@ Some of the game's xml files have syntax errors. The game's xml parser doesn't s
 
 ## TODO
 
- - Move to typescript for web app
+ - Move to typescript
  - Create ContentParsers for all the other content types (currently only Items and Afflictions are parsed)
  - Parse the rest of the tags found in Item ContentParser
  - Allow the user to specify the `contentPackPath` and `languagePath` using command line arguments (yargs library?)

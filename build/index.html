@@ -116,9 +116,42 @@
             <img class="w-75 d-block mx-auto" src="barodocs.png" alt="BaroDocs">
             <div id="mainsearchbar" class="w-100"></div>
         </div>
+        <div class="position-absolute text-center w-100 mb-1" style="bottom: 0; left: 0;">
+            <a type="button" data-toggle="modal" data-target="#aboutModal"><u>???</u></a>
+        </div>
     </div>
 
     <div class="overlay"></div>
+
+    <div class="modal fade" id="aboutModal" tabindex="-1" aria-labelledby="aboutModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="aboutModalLabel">About Barodocs</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    This is an experimental documentation web app for Barotrauma.
+                    <p>Barodocs is made by scanning the XML definitions from the retail game, and then dynamically generating the pages from the contents.</p>
+                    <p>Currently, only a limited portion of the game's XML is scanned and displayed. Items and Afflictions are mostly mapped out, as well as relations between them (e.g. made by, caused by). Afflictions also use graphs to display complex behaviour of effects, if needed (Tip: you can click on the labels to hide or show them).</p>
+                    <p>You can search by identifier or name, and also use prefixes for complex search operations:</p>
+                    <ul>
+                        <li>@ to search by type (e.g. <code>@affliction</code> or <code>@item</code>)</li>
+                        <li># to search by item tags (e.g. <code>#gun</code>)</li>
+                        <li>: to search by item category or affliction type (e.g. <code>:damage</code>)</li>
+                    </ul>
+                    <p>You can also press <kbd>Tab</kbd> to open up the sidebar.</p>
+                    <hr>
+                    <p>Source code is available <a href="https://gitlab.com/underscoren/barodocs">here</a>, feel free to submit any issues, make feature requests or contribute PRs.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+      </div>
 
     <div id="hover" class="bg-light" style="display: none;"></div>
 
