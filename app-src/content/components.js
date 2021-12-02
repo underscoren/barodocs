@@ -237,7 +237,7 @@ function ReduceAfflictionInfo(props) {
         <div className="col-lg-6 col-12">
             {isIdentifier == true ? <HoverImageElement className="align-middle mr-3" item={afflictionObject} optimalSize={2.5} /> : null}
             {isIdentifier == false ? <span className="mr-2">
-                <TagList tags={affliction.type.split(",")} />
+                <TagList tags={(affliction.type ?? affliction.identifier).split(",")} />
             </span> : null}
             {affliction.strength ? <span className="mb-2 align-middle d-inline-block mr-3">
                 <span className="text-muted mr-1">Strength:</span>
