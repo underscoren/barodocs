@@ -243,7 +243,8 @@ function HoldableCard(props) {
                 <span>{holdable.characterusable}</span>
             </div> : null}
             {holdable.requiredskills?.length ? <div className="card-text">
-                
+                <h5>Required Skill{holdable.requiredskills.length > 1 ? "s" : ""}:</h5>
+                <Skills skills={holdable.requiredskills} />
             </div> : null}
             <div className="card-text">
                 {holdable.statuseffects?.length ? <div className="col">
