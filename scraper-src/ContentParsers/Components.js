@@ -276,7 +276,7 @@ class StatusEffect {
                     this.explosions.push(new Explosion(childElement));
                     break;
                 case "fire":
-                    this.fire = childElement.attributes.size;
+                    this.fire = childElement.attributes.size ?? "default";
                     break;
                 case "use":
                 case "useitem":
