@@ -11,19 +11,12 @@ Currently in early stages of development, the majority of features are missing.
 In order to run the generator for yourself, you will need node.js, npm and a retail copy of Barotrauma.
 
  1. Clone the github repo and run `npm install` to install all the packages.
- 2. Copy the "Content" and "Data" folder from your Barotrauma game into the "build" folder inside the repo.
+ 2. Copy the "Content" folder from your Barotrauma game into the "build" folder inside the repo.
     1. Fix the XML files as detailed below
  4. Run `npm run scrape` to scrape the files
  5. Run `npm run build` to build the web app
  6. Run `npm start` to start the web server
  7. Open up a web browser and nagivate to [localhost:8000](http://localhost:8000)
-
-### XML Syntax errors
-
-Some of the game's xml files have syntax errors. The game's xml parser doesn't seem to mind but `xml-parser` will stop parsing without throwing errors. You'll have to fix them manually. Make sure to only modify the files you copied to the "build" folder, not the files in game itself as you won't be able to join any servers.
-
- - Content/Items/Containers/containers.xml:45 remove the `a` at the end
- - Content/Items/Containers/containers.xml:475 remove the `\>` at the end
 
 ## TODO
 
