@@ -6,7 +6,7 @@ const { parseItemFile, parseAfflictionFile } = require("./ContentParsers");
 const buildPath = path.join(__dirname,"../build/");
 
 // TODO: allow user to specify contentPackPath and languagePath
-const contentPackPath = path.join(buildPath,"Data\\ContentPackages\\Vanilla 0.9.xml");
+const contentPackPath = path.join(buildPath,"Content\\ContentPackages\\Vanilla.xml");
 const languagePath = path.join(buildPath, "Content\\Texts\\English\\EnglishVanilla.xml");
 
 const contentPackXMLFile = fs.readFileSync(contentPackPath).toString();
