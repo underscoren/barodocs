@@ -5,7 +5,7 @@
   "main": "scraper.js",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.com/underscoren/barodocs.git"
+    "url": "https://github.com/underscoren/barodocs.git"
   },
   "scripts": {
     "scrape": "node scraper-src/scraper.js",
